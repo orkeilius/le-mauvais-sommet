@@ -1,20 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert, Platform } from 'react-native';
+import { Provider as PaperProvider, Button } from 'react-native-paper';
+import stylesWeb from './style/stylesWeb';
+import stylesIOS from './style/stylesIOS';
+
+const styles = Platform.OS === 'web' ? stylesWeb : stylesIOS;
 
 export default function App() {
+  const handlePress = (buttonName) => {
+    Alert.alert(`Button ${buttonName} pressed`);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider>
+      <View style={styles.container}>
+        <Text>Test</Text>
+        <Button mode="contained" onPress={() => handlePress('1')} style={styles.button}>
+          Button 1
+        </Button>
+        <Button mode="contained" onPress={() => handlePress('2')} style={styles.button}>
+          Button 2
+        </Button>
+        <Button mode="contained" onPress={() => handlePress('3')} style={styles.button}>
+          Button 3
+        </Button>
+        <StatusBar style="auto" />
+      </View>
+    </PaperProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
