@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import UserManagement from './components/UserManagement';
 import ProductManagement from './components/ProductManagement';
+import AuctionsPage from './pages/AuctionsPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/users" component={UserManagement} />
         <Route path="/products" component={ProductManagement} />
+        <Route path="/auctions" component={AuctionsPage} />
       </Switch>
     </Router>
   );
