@@ -219,7 +219,7 @@ const SettingsScreen = () => {
 
 						<LMSTextInput
 							type="password"
-							placeholder="Confirmer le nouveau mot de passe"
+							placeholder="Confirmer le mot de passe"
 							value={confirmPassword}
 							onChangeText={setConfirmPassword}
 							secureTextEntry
