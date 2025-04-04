@@ -14,7 +14,6 @@ import ProfileScreen from "../screens/profile/profile-screen"
 import SettingsScreen from "../screens/profile/settings-screen"
 import MyProductsScreen from "../screens/products/my-products-screen"
 import AddProductScreen from "../screens/products/add-product-screen"
-import EditProductScreen from "../screens/products/edit-product-screen"
 
 // Définition des types pour les navigateurs
 type AuthStackParamList = {
@@ -100,12 +99,10 @@ const MainNavigator = () => {
       <MainStack.Screen name="AuctionDetail" component={AuctionDetailScreen} />
       <MainStack.Screen name="Settings" component={SettingsScreen} />
       <MainStack.Screen name="AddProduct" component={AddProductScreen} />
-      <MainStack.Screen name="EditProduct" component={EditProductScreen} />
     </MainStack.Navigator>
   )
 }
 
-// Navigateur de l'application
 const AppNavigator = () => {
   // État d'authentification (à remplacer par votre logique d'authentification)
   const isAuthenticated = true

@@ -8,10 +8,10 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   Alert,
 } from "react-native"
+import { LMSTextInput } from "../../components/LMSTextInput"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useRoute, useNavigation } from "@react-navigation/native"
@@ -301,15 +301,13 @@ const AuctionDetailScreen = () => {
       </ScrollView>
 
       {!isEnded && (
+
         <View style={styles.bidFormContainer}>
-          <TextInput
-            style={styles.bidInput}
-            placeholder={`Enchère min. ${auction.currentBid + 1} €`}
-            keyboardType="numeric"
-            value={bidAmount}
-            onChangeText={setBidAmount}
-            editable={!submitting}
-          />
+          <View style={{width:"60%", marginRight:12}}>
+          <LMSTextInput type="label" placeholder={`Enchère min. ${auction.currentBid + 1} €`} value={bidAmount} onChangeText={setBidAmount} />
+
+          </View>
+
           <TouchableOpacity
             style={[styles.bidButton, submitting && styles.bidButtonDisabled]}
             onPress={handleBid}
@@ -517,6 +515,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: "#eee",
+    justifyContent: "center",
+   
     backgroundColor: "#fff",
     flexDirection: "row",
   },
