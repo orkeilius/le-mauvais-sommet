@@ -103,7 +103,7 @@ const MyProductsScreen = () => {
   }
 
   const handleEditProduct = (productId: string) => {
-    navigation.navigate("EditProduct", { productId })
+    navigation.navigate("AddProduct", { productId })
   }
 
   const handleDeleteProduct = (productId: string) => {
@@ -122,6 +122,11 @@ const MyProductsScreen = () => {
       },
     ])
   }
+
+  const handleViewProduct = (productId: string) => {
+   navigation.navigate("AuctionDetail", { productId})
+  }
+  
 
   const getStatusLabel = (status: Product["status"]) => {
     switch (status) {
@@ -210,7 +215,7 @@ const MyProductsScreen = () => {
             )}
 
             {item.status === "active" && (
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity style={styles.actionButton} onPress={() => handleViewProduct(item.id)}>
                 <Feather name="eye" size={16} color="#3498db" />
                 <Text style={styles.actionText}>Voir</Text>
               </TouchableOpacity>
