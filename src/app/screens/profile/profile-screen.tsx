@@ -37,9 +37,9 @@ const ProfileScreen = () => {
         // Pour la démo, on simule des données
         const mockUser: User = {
           id: "u1",
-          name: "Thomas Dubois",
-          email: "thomas.dubois@example.com",
-          avatar: "https://example.com/avatar.jpg",
+          name: "Dorothy NIKKE",
+          email: "dorothy.nikke@example.com",
+          avatar: "https://images.steamusercontent.com/ugc/2504647575814690088/C5BF72CF927233F1C50E8A035A61B79CAA900A3B/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false",
           joinDate: "2022-05-15",
           stats: {
             totalSales: 12,
