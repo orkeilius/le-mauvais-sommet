@@ -1,5 +1,5 @@
 import axios, {AxiosInstance} from "axios";
-import TokenSingleton from "@/src/Repository/tokenSingleton";
+import TokenSingleton from "@/src/Repository/TokenSingleton";
 import { BACKEND_URL,BACKEND_ID,BACKEND_KEY } from '@env';
 
 export abstract class AbscractRepository{
