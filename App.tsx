@@ -1,19 +1,19 @@
-import { SafeAreaProvider } from "react-native-safe-area-context"
+import {SafeAreaProvider} from "react-native-safe-area-context"
 import AppNavigator from "@/src/app/navigation/app-navigator"
-import UserRepository from "@/src/Repository/UserRepository";
+import AuthStore from "@/src/app/Store/AuthStore";
 
 export default function App() {
-    UserRepository.getInstance().getById(102).then(
-        user => {
-            console.log(user)
-            user.getAuction().then(auction => {console.log(auction)})
-        }
-    )
+    //LoginRepository.getInstance().login("orkeilius@gmail.com", "bobPassword").then((instance) => {
+    //    console.log(instance)
+    //})
 
-  return (
-    <SafeAreaProvider>
-      <AppNavigator />
-    </SafeAreaProvider>
-  )
+
+    return (
+        <SafeAreaProvider>
+            <AuthStore>
+                <AppNavigator/>
+            </AuthStore>
+        </SafeAreaProvider>
+    )
 }
 

@@ -14,6 +14,8 @@ import ProfileScreen from "../screens/profile/profile-screen"
 import SettingsScreen from "../screens/profile/settings-screen"
 import MyProductsScreen from "../screens/products/my-products-screen"
 import AddProductScreen from "../screens/products/add-product-screen"
+import {AuthContext} from "@/src/app/Store/AuthStore";
+import {useContext, } from "react";
 
 // Définition des types pour les navigateurs
 type AuthStackParamList = {
@@ -104,10 +106,9 @@ const MainNavigator = () => {
 }
 
 const AppNavigator = () => {
-  // État d'authentification (à remplacer par votre logique d'authentification)
-  const isAuthenticated = true
+    const authContext = useContext(AuthContext)
 
-  return <NavigationContainer>{isAuthenticated ? <MainNavigator /> : <AuthNavigator />}</NavigationContainer>
+  return <NavigationContainer>{authContext.user !== null ? <MainNavigator /> : <AuthNavigator />}</NavigationContainer>
 }
 
 export default AppNavigator

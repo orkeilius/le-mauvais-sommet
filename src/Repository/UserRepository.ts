@@ -25,7 +25,7 @@ export default class UserRepository extends AbscractRepository {
 
     // Sauvegarder un utilisateur (créer ou mettre à jour)
     async save(name:string,email:string,password:string): Promise<User> {
-        const response = await this.getConnection().postForm(`/users`, {
+        const response = await this.getConnection().postForm(`api/users`, {
             name,
             email,
             password,
@@ -36,7 +36,7 @@ export default class UserRepository extends AbscractRepository {
     }
 
     async getOffersFromUser(user: User, page= 1): Promise<Offert[]> {
-        const response = await super.getConnection().get(`/users/${user.id}/offer?page=${page}`);
+        const response = await super.getConnection().get(`api/users/${user.id}/offer?page=${page}`);
         return response.data.map((offer: Offert) => {
             offer.author = user;
             return offer;
@@ -44,7 +44,7 @@ export default class UserRepository extends AbscractRepository {
     }
 
     async getAuctionFromUser(user: User, page=1): Promise<Auction[]> {
-        const response = await super.getConnection().get(`/users/${user.id}/auction?page=${page}`);
+        const response = await super.getConnection().get(`api/users/${user.id}/auction?page=${page}`);
         return response.data.data.map((auction: Auction) => {
             auction.author = user;
             return auction;
@@ -53,6 +53,6 @@ export default class UserRepository extends AbscractRepository {
 
     // Supprimer un utilisateur par ID
     async delete(id: number): Promise<void> {
-        await this.getConnection().delete(`/users/${id}`);
+        await this.getConnection().delete(`api/users/${id}`);
     }
 }

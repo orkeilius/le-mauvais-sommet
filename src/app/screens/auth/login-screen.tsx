@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {useContext, useState} from "react";
 import {
 	View,
 	Text,
@@ -17,12 +17,15 @@ import { LMSTextInput } from "../../components/LMSTextInput";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import LoginRepository from "@/src/Repository/LoginRepository";
+import {AuthContext} from "@/src/app/Store/AuthStore";
 
 const LoginScreen = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigation = useNavigation();
+	const authContext = useContext(AuthContext);
 
 	const handleLogin = async () => {
 		if (!email || !password) {
@@ -31,11 +34,7 @@ const LoginScreen = () => {
 		}
 
 		try {
-			// Intégration avec le backend existant
-			// Exemple: const response = await api.login(email, password);
-
-			// Pour la démo, on simule une connexion réussie
-			navigation.navigate("MainTabs");
+			LoginRepository.getInstance().login(email, password).then(response => authContext.dispatch("login", response));
 		} catch (error) {
 			Alert.alert("Erreur de connexion", "Identifiants incorrects");
 		}
@@ -79,7 +78,7 @@ const LoginScreen = () => {
 							placeholder="Votre mot de passe"
 							value={password}
 							onChangeText={setPassword}
-              eye
+
 							label="Mot de passe"
 							secureTextEntry={!showPassword}
 							leftIcon={

@@ -6,21 +6,6 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
 
-// Types
-interface User {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  joinDate: string
-  stats: {
-    totalSales: number
-    totalPurchases: number
-    activeAuctions: number
-    wonAuctions: number
-  }
-}
-
 const ProfileScreen = () => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
