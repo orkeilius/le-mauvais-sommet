@@ -1,0 +1,846 @@
+{
+	"info": {
+		"_postman_id": "6dbf89c0-baf0-45ae-8bc4-680b2f37e4f1",
+		"name": "api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29627169"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "show user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.environment.set(\"crsf\", pm.response.cookies.get(\"XSRF-TOKEN\"));",
+									"console.log(pm.response.cookies.get(\"XSRF-TOKEN\"))",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - id, name, updated_at, role, and avatar_url\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('name');",
+									"    pm.expect(responseData).to.have.property('updated_at');",
+									"    pm.expect(responseData).to.have.property('role');",
+									"    pm.expect(responseData).to.have.property('avatar_url');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Id is a non-negative integer\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.id).to.be.a('number');",
+									"    pm.expect(responseData.id).to.be.at.least(0, \"Id should be a non-negative integer\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}api/users/1",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "index user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 1: Verify the response status code is 200",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/users",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test(\"Response body contains 'The email has already been taken.' message\", function () {",
+									"    pm.expect(pm.response.json().message).to.include(\"The email has already been taken.\");",
+									"});",
+									"",
+									"pm.test(\"Response body contains 'email' error with message 'The email has already been taken.'\", function () {",
+									"    pm.expect(pm.response.json().errors.email).to.eql([\"The email has already been taken.\"]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "bob",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "bob.test@localhost.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "bobPassword",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "bobPassword",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}api/users",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/users/102",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users",
+								"102"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show user offer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/users/102/offer",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users",
+								"102",
+								"offer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show user auction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/users/102/auction",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"users",
+								"102",
+								"auction"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auction",
+			"item": [
+				{
+					"name": "index auction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 1: Verify the response status code is 200",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/auctions",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store auction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "test",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "holla",
+									"type": "text"
+								},
+								{
+									"key": "rzer",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "images[]",
+									"type": "file",
+									"src": [
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}api/auctions",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"auctions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy auction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/auctions/181",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"auctions",
+								"181"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update auction",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/auctions/182?name=eeeee",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"auctions",
+								"182"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "eeeee"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show auction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.environment.set(\"crsf\", pm.response.cookies.get(\"XSRF-TOKEN\"));",
+									"console.log(pm.response.cookies.get(\"XSRF-TOKEN\"))",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - id, name, updated_at, role, and avatar_url\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('id');",
+									"    pm.expect(responseData).to.have.property('name');",
+									"    pm.expect(responseData).to.have.property('updated_at');",
+									"    pm.expect(responseData).to.have.property('role');",
+									"    pm.expect(responseData).to.have.property('avatar_url');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Id is a non-negative integer\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.id).to.be.a('number');",
+									"    pm.expect(responseData.id).to.be.at.least(0, \"Id should be a non-negative integer\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}api/auctions/1",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"auctions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Offer",
+			"item": [
+				{
+					"name": "store offer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "price",
+									"value": "900000",
+									"type": "text"
+								},
+								{
+									"key": "auction_id",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}api/offers",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "index offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test 1: Verify the response status code is 200",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/offers",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show offer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.environment.set(\"crsf\", pm.response.cookies.get(\"XSRF-TOKEN\"));",
+									"console.log(pm.response.cookies.get(\"XSRF-TOKEN\"))",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Id is a non-negative integer\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.id).to.be.a('number');",
+									"    pm.expect(responseData.id).to.be.at.least(0, \"Id should be a non-negative integer\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Encoding",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}api/offers/1",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"offers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update offer",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}api/offers/901?price=20000",
+							"host": [
+								"{{base_url}}api"
+							],
+							"path": [
+								"offers",
+								"901"
+							],
+							"query": [
+								{
+									"key": "price",
+									"value": "20000"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "_OAuth2",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extracting access_token and refresh_token from the response body",
+									"const responseBody = pm.response.json();",
+									"const accessToken = responseBody.access_token;",
+									"const refreshToken = responseBody.refresh_token;",
+									"",
+									"// Setting the environment variables for access_token and refresh_token",
+									"pm.environment.set(\"access_token\", accessToken);",
+									"pm.environment.set(\"refresh_token\", refreshToken);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiZjMxNDdjZjYwOGFmYmNjMDI1MzE2OTU3ZjQyYTg4MzczNmYzYTUzYjRkODZiNWZlOTlkNzJkNmJhOGJkMmE5MTFhYTMzOTBhMjk2ZDVmMDMiLCJpYXQiOjE3MzE2NjUxMzAuMTkxMjk3LCJuYmYiOjE3MzE2NjUxMzAuMTkxMjk5LCJleHAiOjE3NjMyMDExMzAuMTc5OTk1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.g8NFA2WwoMgRCH6jlGVUzBUGFNqROU3WMr75bTbtfAelrVXEXkYGcv4V0QVWXPAOvaYx-HHdC6hTO57Z06iMP2dTv07CBt-9_9vhPgw0zscgHt4e-lb26_4vLrjPHDdUf8ylJp9E5Z-eSQDECAHsiU_iOAN5Rb4OFuEiT60LsC2a0fXNu959j1yc_63VW_QgOdtMyMQMr7_D4gj6ZXLYfmUnU5N1Y0vs-AWFdgSytWEssKOF9uEgU_rISyKVtpwqtwSF4cZzvovVZxaEKA7DT9MfRr6aoBeeIxiZQI-W_G-_nByZ8Fum9heODkTOwg1KHFHQDe6K3O_BbU3kKG-TRpX0ncf17DQR7wEYEG9Xh3RH8hq-mjbAcMotu3hsvGoi87snA2XC1YGjp9VvNT2sX4JDhYngnktzHL5JbtH7VnBGc4nOWKxd2nYfUHjxllpdqTuv2KhaNXefDm1Zca7UyI6uBhEMdIlRxUih7owD0SOyZ9c1YeOujIHHSBsvST7w5G0j7UtBFcpWhw9P7iY0t2yPjJlRNy2tuIzLRafWFAikUK1P0U3DD2XN2l9Ecj9d7Y_YDAe66M4FwPkZPwY4DQAETh6jAcNq7KC-6IvsBZXqgZFculGxtgQZ7e2l_EQvu8eCXg08vTHCoP3vGVdQ1YkePg5zDWVq2MFimPJwM9Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "orkeilius@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "bobPassword",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client_secret}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}oauth/token",
+							"host": [
+								"{{base_url}}oauth"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extracting access_token and refresh_token from the response body",
+									"const responseBody = pm.response.json();",
+									"const accessToken = responseBody.access_token;",
+									"const refreshToken = responseBody.refresh_token;",
+									"",
+									"// Setting the environment variables for access_token and refresh_token",
+									"pm.environment.set(\"access_token\", accessToken);",
+									"pm.environment.set(\"refresh_token\", refreshToken);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiZjMxNDdjZjYwOGFmYmNjMDI1MzE2OTU3ZjQyYTg4MzczNmYzYTUzYjRkODZiNWZlOTlkNzJkNmJhOGJkMmE5MTFhYTMzOTBhMjk2ZDVmMDMiLCJpYXQiOjE3MzE2NjUxMzAuMTkxMjk3LCJuYmYiOjE3MzE2NjUxMzAuMTkxMjk5LCJleHAiOjE3NjMyMDExMzAuMTc5OTk1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.g8NFA2WwoMgRCH6jlGVUzBUGFNqROU3WMr75bTbtfAelrVXEXkYGcv4V0QVWXPAOvaYx-HHdC6hTO57Z06iMP2dTv07CBt-9_9vhPgw0zscgHt4e-lb26_4vLrjPHDdUf8ylJp9E5Z-eSQDECAHsiU_iOAN5Rb4OFuEiT60LsC2a0fXNu959j1yc_63VW_QgOdtMyMQMr7_D4gj6ZXLYfmUnU5N1Y0vs-AWFdgSytWEssKOF9uEgU_rISyKVtpwqtwSF4cZzvovVZxaEKA7DT9MfRr6aoBeeIxiZQI-W_G-_nByZ8Fum9heODkTOwg1KHFHQDe6K3O_BbU3kKG-TRpX0ncf17DQR7wEYEG9Xh3RH8hq-mjbAcMotu3hsvGoi87snA2XC1YGjp9VvNT2sX4JDhYngnktzHL5JbtH7VnBGc4nOWKxd2nYfUHjxllpdqTuv2KhaNXefDm1Zca7UyI6uBhEMdIlRxUih7owD0SOyZ9c1YeOujIHHSBsvST7w5G0j7UtBFcpWhw9P7iY0t2yPjJlRNy2tuIzLRafWFAikUK1P0U3DD2XN2l9Ecj9d7Y_YDAe66M4FwPkZPwY4DQAETh6jAcNq7KC-6IvsBZXqgZFculGxtgQZ7e2l_EQvu8eCXg08vTHCoP3vGVdQ1YkePg5zDWVq2MFimPJwM9Y",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "refresh_token",
+									"value": "{{refresh_token}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client_secret}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "refresh_token",
+									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}oauth/token",
+							"host": [
+								"{{base_url}}oauth"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"//pm.request.headers.add(\"X-CSRF-TOKEN: \"+pm.environment.get(\"crsf\"))",
+					"pm.request.headers.add(\"Accept: application/json\")"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"//pm.environment.set(\"crsf\", pm.response.cookies.get(\"XSRF-TOKEN\"));"
+				]
+			}
+		}
+	]
+}
