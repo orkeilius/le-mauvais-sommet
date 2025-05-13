@@ -1,5 +1,4 @@
 import UserRepository from "@/src/Repository/UserRepository";
-import {useMemo} from "react";
 
 export default class User {
   id: number;
@@ -15,7 +14,7 @@ export default class User {
     this.role = role;
     this.avatarUrl = avatarUrl;
   }
-  public static mapFromJson(json:any){
+  public static mapFromJson(json:object){
     return new User(
         json.id,
         json.name,
@@ -24,7 +23,7 @@ export default class User {
         json.avatar_url
     );
   }
-  
+
   public getOffers(page=1) {
     return UserRepository.getInstance().getOffersFromUser(this, page)
   }

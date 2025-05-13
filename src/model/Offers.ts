@@ -27,7 +27,7 @@ export default class Offer {
     this.author = author;
   }
 
-  public static mapFromJson(json: any): Offer {
+  public static mapFromJson(json: object): Offer {
     return new Offer(
       json.id,
       json.created_at,

@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useReducer} from "react";
+import {createContext, ReactNode, useEffect, useMemo, useReducer} from "react";
 import TokenSingleton from "@/src/Repository/TokenSingleton";
 import LoginRepository from "@/src/Repository/LoginRepository";
 
@@ -39,9 +39,9 @@ export default function AuthStore({children}: Readonly<{ children: ReactNode }>)
         })
     }, []);
 
-
+    const contextValue  = useMemo(() :AuthStoreProps => ({user,dispatch}),[user])
     return (
-        <AuthContext.Provider value={{user, dispatch}}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     )

@@ -31,7 +31,7 @@ export default class Auction {
     this.highestOffer = highestOffer;
   }
 
-  public static mapFromJson(json: any): Auction {
+  public static mapFromJson(json: object): Auction {
     return new Auction(
       json.id,
       json.created_at,
