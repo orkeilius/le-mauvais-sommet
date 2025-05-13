@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import {
   View,
@@ -14,97 +12,20 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
-
-// Types
-interface Auction {
-  id: string
-  title: string
-  description: string
-  startingPrice: number
-  currentBid: number
-  imageUrl: string
-  endDate: string
-  bidsCount: number
-  seller: {
-    id: string
-    name: string
-  }
-}
+import AuctionRepository from "@/src/Repository/AuctionRepository";
 
 const AuctionsScreen = () => {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [filter, setFilter] = useState("all") // 'all', 'ending-soon', 'new'
+  const [filter, setFilter] = useState("all")
   const navigation = useNavigation()
-
-  // Fonction pour charger les enchères
+  console.log(auctions)
   const loadAuctions = async () => {
     try {
-      // Intégration avec le backend existant
-      // Exemple: const response = await api.getAuctions(filter);
-
-      // Pour la démo, on simule des données
-      const mockAuctions: Auction[] = [
-        {
-          id: "1",
-          title: "Guide complet Photoshop 2023",
-          description: "PDF de 250 pages avec toutes les techniques avancées",
-          startingPrice: 15,
-          currentBid: 35,
-          imageUrl: "https://example.com/photoshop.jpg",
-          endDate: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 jours
-          bidsCount: 8,
-          seller: {
-            id: "s1",
-            name: "DesignPro",
-          },
-        },
-        {
-          id: "2",
-          title: "Pack d'icônes premium",
-          description: "500 icônes vectorielles pour vos projets web et mobile",
-          startingPrice: 10,
-          currentBid: 22,
-          imageUrl: "https://example.com/icons.jpg",
-          endDate: new Date(Date.now() + 86400000 * 1).toISOString(), // 1 jour
-          bidsCount: 6,
-          seller: {
-            id: "s2",
-            name: "IconMaster",
-          },
-        },
-        {
-          id: "3",
-          title: "Template site e-commerce",
-          description: "Template HTML/CSS/JS responsive pour boutique en ligne",
-          startingPrice: 25,
-          currentBid: 45,
-          imageUrl: "https://example.com/template.jpg",
-          endDate: new Date(Date.now() + 86400000 * 5).toISOString(), // 5 jours
-          bidsCount: 12,
-          seller: {
-            id: "s3",
-            name: "WebDev",
-          },
-        },
-        {
-          id: "4",
-          title: "Ebook Marketing Digital",
-          description: "Stratégies de marketing digital pour 2023",
-          startingPrice: 18,
-          currentBid: 18,
-          imageUrl: "https://example.com/ebook.jpg",
-          endDate: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 jours
-          bidsCount: 0,
-          seller: {
-            id: "s4",
-            name: "MarketingPro",
-          },
-        },
-      ]
-
-      setAuctions(mockAuctions)
+      AuctionRepository.getInstance().getAuction(0,"").then(
+          (newAuctions: Auction[]) => {setAuctions(newAuctions)}
+      )
     } catch (error) {
       console.error("Erreur lors du chargement des enchères:", error)
     } finally {
@@ -149,13 +70,13 @@ const AuctionsScreen = () => {
         onPress={() => navigation.navigate("AuctionDetail", { auctionId: item.id })}
       >
         <Image
-          source={{ uri: item.imageUrl }}
+          source={{ uri: "" /*#TODO*/ }}
           style={styles.auctionImage}
           defaultSource={require("../../assets/placeholder.png")}
         />
         <View style={styles.auctionInfo}>
           <Text style={styles.auctionTitle} numberOfLines={1}>
-            {item.title}
+            {item.name}
           </Text>
           <Text style={styles.auctionDescription} numberOfLines={2}>
             {item.description}
@@ -164,7 +85,7 @@ const AuctionsScreen = () => {
           <View style={styles.bidInfo}>
             <View>
               <Text style={styles.bidLabel}>Enchère actuelle</Text>
-              <Text style={styles.bidAmount}>{item.currentBid} €</Text>
+              <Text style={styles.bidAmount}>{item.highest_offer} €</Text>
             </View>
 
             <View>
@@ -174,9 +95,9 @@ const AuctionsScreen = () => {
           </View>
 
           <View style={styles.auctionFooter}>
-            <Text style={styles.sellerName}>Par {item.seller.name}</Text>
+            <Text style={styles.sellerName}>Par {item.author.name}</Text>
             <Text style={styles.bidsCount}>
-              {item.bidsCount} {item.bidsCount === 1 ? "enchère" : "enchères"}
+              {-1 /*#TODO*/} {-1 === 1 ? "enchère" : "enchères"}
             </Text>
           </View>
         </View>
