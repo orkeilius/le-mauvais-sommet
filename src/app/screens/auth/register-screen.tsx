@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
 	View,
@@ -17,10 +15,12 @@ import { LMSTextInput } from "../../components/LMSTextInput";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import UserRepository from "@/src/Repository/UserRepository";
 
 const RegisterScreen = () => {
-	const [lastName, setLastName] = useState("");
-	const [firstName, setFirstName] = useState("");
+
+
+	const [name, setName] = useState("");
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -29,7 +29,7 @@ const RegisterScreen = () => {
 	const navigation = useNavigation();
 
 	const handleRegister = async () => {
-		if (!lastName || !email || !password || !confirmPassword || !firstName) {
+		if (!name || !email || !password || !confirmPassword ) {
 			Alert.alert("Erreur", "Veuillez remplir tous les champs");
 			return;
 		}
@@ -40,15 +40,7 @@ const RegisterScreen = () => {
 		}
 
 		try {
-			// Intégration avec le backend existant
-			// Exemple: const response = await api.register(name, email, password);
-
-			// Pour la démo, on simule une inscription réussie
-			Alert.alert(
-				"Inscription réussie",
-				"Votre compte a été créé avec succès",
-				[{ text: "OK", onPress: () => navigation.navigate("Login") }],
-			);
+			UserRepository.getInstance().save(name, email, password).then(()=>navigation.navigate("Login"))
 		} catch (error) {
 			Alert.alert("Erreur d'inscription", "Impossible de créer votre compte");
 		}
@@ -74,25 +66,9 @@ const RegisterScreen = () => {
 						<LMSTextInput
 							label="Nom"
 							placeholder="Votre nom"
-							value={lastName}
+							value={name}
               type="label"
-							onChangeText={setLastName}
-							leftIcon={
-								<Feather
-									name="user"
-									size={20}
-									color="#666"
-									style={styles.inputIcon}
-								/>
-							}
-						/>
-
-						<LMSTextInput
-							label="Prénom"
-							placeholder="Votre prénom"
-							value={firstName}
-              type="label"
-							onChangeText={setFirstName}
+							onChangeText={setName}
 							leftIcon={
 								<Feather
 									name="user"

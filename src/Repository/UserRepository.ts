@@ -25,7 +25,7 @@ export default class UserRepository extends AbscractRepository {
 
     // Sauvegarder un utilisateur (créer ou mettre à jour)
     async save(name:string,email:string,password:string): Promise<User> {
-        const response = await this.getConnection().postForm(`api/users`, {
+        const response = await this.getConnection().post(`api/users`, {
             name,
             email,
             password,
