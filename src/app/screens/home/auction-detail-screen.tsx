@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native"
-import { LMSTextInput } from "../../components/LMSTextInput"
+import LMSTextInput from "../../components/LMSTextInput"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useRoute, useNavigation } from "@react-navigation/native"

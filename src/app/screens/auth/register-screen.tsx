@@ -10,7 +10,7 @@ import {
 	ScrollView,
 	Alert,
 } from "react-native";
-import { LMSTextInput } from "../../components/LMSTextInput";
+import LMSTextInput from "../../components/LMSTextInput";
 
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -102,7 +102,6 @@ const RegisterScreen = () => {
               eye
 							onChangeText={setPassword}
 							label="Mot de passe"
-							secureTextEntry={!showPassword}
 							leftIcon={
 								<Feather
 									name="lock"
