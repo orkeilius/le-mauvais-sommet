@@ -34,7 +34,7 @@ const LoginScreen = () => {
 		}
 
 		try {
-			LoginRepository.getInstance().login(email, password).then(response => authContext.dispatch("login", response));
+			LoginRepository.getInstance().login(email, password).then(response => authContext.dispatch({action:"login", value:response}));
 		} catch (error) {
 			Alert.alert("Erreur de connexion", "Identifiants incorrects");
 		}

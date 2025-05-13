@@ -1,4 +1,5 @@
 import LoginRepository from "@/src/Repository/LoginRepository";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class TokenSingleton {
     private static instance: TokenSingleton;
@@ -17,6 +18,17 @@ class TokenSingleton {
         return TokenSingleton.instance;
     }
 
+    public async getTokenFromStorage() {
+        const token = await AsyncStorage.getItem('token');
+        const refreshToken = await AsyncStorage.getItem('refreshToken');
+        if (token) {
+            this.token = token;
+        }
+        if (refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+    }
+
     // Enregistrer un token
     public setToken(token: string,refreshToken:string,refreshTime:number): void {
         this.token = token;
@@ -24,6 +36,8 @@ class TokenSingleton {
         console.log(refreshTime);
         clearTimeout(this.interval)
         this.interval = setInterval(() => LoginRepository.getInstance().refreshToken(this.token), refreshTime*0.5);
+        AsyncStorage.setItem('token', token);
+        AsyncStorage.setItem('refreshToken', refreshToken);
     }
 
     // Obtenir le token
