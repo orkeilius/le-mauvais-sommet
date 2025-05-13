@@ -5,21 +5,20 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   RefreshControl,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
 import AuctionRepository from "@/src/Repository/AuctionRepository";
+import AuctionCard from "@/src/app/components/AuctionCard";
+import Auction from "@/src/model/Auction";
 
 const AuctionsScreen = () => {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState("all")
-  const navigation = useNavigation()
   console.log(auctions)
   const loadAuctions = async () => {
     try {
@@ -43,67 +42,6 @@ const AuctionsScreen = () => {
     loadAuctions()
   }
 
-  // Calcul du temps restant
-  const getRemainingTime = (endDate: string) => {
-    const end = new Date(endDate).getTime()
-    const now = new Date().getTime()
-    const distance = end - now
-
-    if (distance < 0) return "Terminé"
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-
-    if (days > 0) return `${days}j ${hours}h`
-
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-    return `${hours}h ${minutes}m`
-  }
-
-  const renderAuctionItem = ({ item }: { item: Auction }) => {
-    const remainingTime = getRemainingTime(item.endDate)
-    const isEnding = remainingTime.includes("h") && !remainingTime.includes("j")
-
-    return (
-      <TouchableOpacity
-        style={styles.auctionCard}
-        onPress={() => navigation.navigate("AuctionDetail", { auctionId: item.id })}
-      >
-        <Image
-          source={{ uri: "" /*#TODO*/ }}
-          style={styles.auctionImage}
-          defaultSource={require("../../assets/placeholder.png")}
-        />
-        <View style={styles.auctionInfo}>
-          <Text style={styles.auctionTitle} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text style={styles.auctionDescription} numberOfLines={2}>
-            {item.description}
-          </Text>
-
-          <View style={styles.bidInfo}>
-            <View>
-              <Text style={styles.bidLabel}>Enchère actuelle</Text>
-              <Text style={styles.bidAmount}>{item.highest_offer} €</Text>
-            </View>
-
-            <View>
-              <Text style={styles.bidLabel}>Temps restant</Text>
-              <Text style={[styles.timeRemaining, isEnding && styles.endingSoon]}>{remainingTime}</Text>
-            </View>
-          </View>
-
-          <View style={styles.auctionFooter}>
-            <Text style={styles.sellerName}>Par {item.author.name}</Text>
-            <Text style={styles.bidsCount}>
-              {-1 /*#TODO*/} {-1 === 1 ? "enchère" : "enchères"}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    )
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -146,8 +84,8 @@ const AuctionsScreen = () => {
       ) : (
         <FlatList
           data={auctions}
-          renderItem={renderAuctionItem}
-          keyExtractor={(item) => item.id}
+          renderItem={elem => <AuctionCard item={elem.item} />}
+          keyExtractor={item => item.id}
           contentContainerStyle={styles.auctionsList}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
