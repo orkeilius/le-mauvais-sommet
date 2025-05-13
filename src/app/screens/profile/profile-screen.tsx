@@ -1,66 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import {useState, useEffect, useContext} from "react"
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import {AuthContext} from "@/src/app/Store/AuthStore";
 
-const ProfileScreen = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("purchases") // 'purchases', 'sales', 'active'
+// 'purchases', 'sales', 'active'
+
+function ProfileScreen() {
+  const authContext = useContext(AuthContext);
+  const user : User = authContext.user as User;
+  const [activeTab, setActiveTab] = useState<"purchases" | "sales" | "active">("purchases")
   const navigation = useNavigation()
 
-  useEffect(() => {
-    // Charger les données de l'utilisateur
-    const loadUserData = async () => {
-      try {
-        // Intégration avec le backend existant
-        // Exemple: const response = await api.getUserProfile();
-
-        // Pour la démo, on simule des données
-        const mockUser: User = {
-          id: "u1",
-          name: "Dorothy NIKKE",
-          email: "dorothy.nikke@example.com",
-          avatar: "https://images.steamusercontent.com/ugc/2504647575814690088/C5BF72CF927233F1C50E8A035A61B79CAA900A3B/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false",
-          joinDate: "2022-05-15",
-          stats: {
-            totalSales: 12,
-            totalPurchases: 8,
-            activeAuctions: 3,
-            wonAuctions: 5,
-          },
-        }
-
-        setUser(mockUser)
-      } catch (error) {
-        console.error("Erreur lors du chargement du profil:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadUserData()
-  }, [])
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
-      </View>
-    )
-  }
-
-  if (!user) {
-    return (
-      <View style={styles.errorContainer}>
-        <Feather name="alert-circle" size={60} color="#e74c3c" />
-        <Text style={styles.errorText}>Impossible de charger le profil</Text>
-      </View>
-    )
-  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -79,32 +33,32 @@ const ProfileScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.profileHeader}>
           <Image
-            source={{ uri: user.avatar }}
+            source={{ uri: user.avatarUrl }}
             style={styles.avatar}
             defaultSource={require("../../assets/default-avatar.png")}
           />
           <View style={styles.profileInfo}>
             <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userEmail}>{user.email}</Text>
-            <Text style={styles.joinDate}>Membre depuis {formatDate(user.joinDate)}</Text>
+            {/*<Text style={styles.userEmail}>{user}</Text>*/}
+            <Text style={styles.joinDate}>Membre depuis {formatDate(null)/*#TODO*/}</Text>
           </View>
         </View>
 
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.stats.totalSales}</Text>
+            <Text style={styles.statValue}>{-1/*#TODO*/}</Text>
             <Text style={styles.statLabel}>Ventes</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.stats.totalPurchases}</Text>
+            <Text style={styles.statValue}>{-1 /*#TODO*/}</Text>
             <Text style={styles.statLabel}>Achats</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.stats.activeAuctions}</Text>
+            <Text style={styles.statValue}>{-1/*#TODO*/}</Text>
             <Text style={styles.statLabel}>Actives</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user.stats.wonAuctions}</Text>
+            <Text style={styles.statValue}>{-1 /*#TODO*/}</Text>
             <Text style={styles.statLabel}>Gagnées</Text>
           </View>
         </View>
@@ -155,6 +109,7 @@ const ProfileScreen = () => {
   )
 }
 
+/*#TODO*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
