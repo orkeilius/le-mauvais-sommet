@@ -41,7 +41,8 @@ export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
                 <View style={styles.auctionFooter}>
                     <Text style={styles.sellerName}>Par {item.author.name}</Text>
                     <Text style={styles.bidsCount}>
-                        {-1 /*#TODO*/} {-1 === 1 ? "enchère" : "enchères"}
+                        {console.log(item)}
+                        {item.offersCount} {item.offersCount===1 ? "enchère" : "enchères"}
                     </Text>
                 </View>
             </View>

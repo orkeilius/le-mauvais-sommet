@@ -1,5 +1,6 @@
 import User from "@/src/model/User";
 import Image from "@/src/model/Image";
+import Offer from "@/src/model/Offer";
 
 const unJour = 86400000
 
@@ -13,6 +14,8 @@ export default class Auction {
     endAt: Date;
     author: User;
     highestOffer: number;
+    offers?: Offer[];
+    offersCount?: number;
     images: Image[];
 
     constructor(
@@ -40,18 +43,23 @@ export default class Auction {
     }
 
     public static mapFromJson(json: object): Auction {
-        return new Auction(
+        const auction = new Auction(
             json.id,
-            Date(json.created_at),
-            Date(json.updated_at),
+            new Date(json.created_at),
+            new Date(json.updated_at),
             json.name,
             json.description,
             json.starting_price,
-            Date(json.end_at),
+            new Date(json.end_at),
             User.mapFromJson(json.author),
             json.highest_offer,
             json.images.map((image: object) => Image.mapFromJson(image))
         );
+        console.log(json.offers_count)
+        if (json.offers_count !== undefined) {
+            auction.offersCount = json.offers_count
+        }
+        return auction;
     }
 
     public isEnding(): boolean {
@@ -59,14 +67,16 @@ export default class Auction {
     }
 
     public getRemainingTime() {
-        return this.endAt !== null ? new Date(Date.now() - this.endAt.getTime()) : new Date()
+        return this.endAt !== null ? new Date(this.endAt.getTime()- Date.now()) : new Date(0)
     }
     public getRemainingTimeString() {
-        const remainingTime = this.getRemainingTime()
-        if (remainingTime.getTime() > unJour) {
-            return  Math.round(remainingTime.getTime() / unJour) + " jours";
+        const remainingTime = this.getRemainingTime().getTime();
+        if (remainingTime > unJour) {
+            return Math.floor(remainingTime / unJour) + " jours";
         } else {
-            return `${remainingTime.getHours()}h ${remainingTime.getMinutes()}`
+            const hours = Math.floor((remainingTime % unJour) / 3600000);
+            const minutes = Math.floor((remainingTime % 3600000) / 60000);
+            return `${hours}h ${minutes}min`
         }
     }
 
