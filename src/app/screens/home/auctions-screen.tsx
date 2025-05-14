@@ -22,7 +22,7 @@ const AuctionsScreen = () => {
   console.log(auctions)
   const loadAuctions = async () => {
     try {
-      AuctionRepository.getInstance().getAuction(0,"").then(
+      AuctionRepository.getInstance().getAuctionList(0,"").then(
           (newAuctions: Auction[]) => {setAuctions(newAuctions)}
       )
     } catch (error) {

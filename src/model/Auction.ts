@@ -1,6 +1,8 @@
 import User from "@/src/model/User";
 import Image from "@/src/model/Image";
 
+const unJour = 86400000
+
 export default class Auction {
     id: number;
     createdAt: Date;
@@ -50,5 +52,25 @@ export default class Auction {
             json.highest_offer,
             json.images.map((image: object) => Image.mapFromJson(image))
         );
+    }
+
+    public isEnding(): boolean {
+        return this.getRemainingTime().getTime() < unJour
+    }
+
+    public getRemainingTime() {
+        return this.endAt !== null ? new Date(Date.now() - this.endAt.getTime()) : new Date()
+    }
+    public getRemainingTimeString() {
+        const remainingTime = this.getRemainingTime()
+        if (remainingTime.getTime() > unJour) {
+            return  Math.round(remainingTime.getTime() / unJour) + " jours";
+        } else {
+            return `${remainingTime.getHours()}h ${remainingTime.getMinutes()}`
+        }
+    }
+
+    public isEnded(): boolean {
+        return this.endAt < new Date()
     }
 }

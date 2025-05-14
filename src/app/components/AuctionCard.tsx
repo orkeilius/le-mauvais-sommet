@@ -2,17 +2,10 @@ import {StyleSheet, TouchableOpacity,Image,View,Text} from "react-native"
 import Auction from "@/src/model/Auction";
 import {useNavigation} from "@react-navigation/native";
 
-const unJour = 1000 * 3600 * 24
 
 export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
     const navigation = useNavigation()
 
-    const remainingTime= item.endAt !== null ? new Date(Date.now() - item.endAt.getTime()) : new Date()
-    const isEnding = remainingTime.getTime() < unJour
-    let remainingTimeString = remainingTime.getHours() + "h " + remainingTime.getMinutes()
-    if (remainingTime.getTime() > 1000 * 3600 * 24){
-        remainingTimeString = Math.round(remainingTime.getTime() / unJour) + " jours";
-    }
     const image = item.images[0]?.url ? item.images[0].url : "https://www.example.com/placeholder.png"
 
     return (
@@ -41,7 +34,7 @@ export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
 
                     <View>
                         <Text style={styles.bidLabel}>Temps restant</Text>
-                        <Text style={[styles.timeRemaining, isEnding && styles.endingSoon]}>{remainingTimeString}</Text>
+                        <Text style={[styles.timeRemaining, item.isEnding() && styles.endingSoon]}>{item.getRemainingTimeString()}</Text>
                     </View>
                 </View>
 

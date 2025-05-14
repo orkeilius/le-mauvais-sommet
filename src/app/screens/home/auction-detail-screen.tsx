@@ -15,37 +15,15 @@ import LMSTextInput from "../../components/LMSTextInput"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useRoute, useNavigation } from "@react-navigation/native"
-
-// Types
-interface AuctionDetail {
-  id: string
-  title: string
-  description: string
-  startingPrice: number
-  currentBid: number
-  imageUrl: string
-  endDate: string
-  bidsCount: number
-  seller: {
-    id: string
-    name: string
-    rating: number
-  }
-  bids: Array<{
-    id: string
-    userId: string
-    userName: string
-    amount: number
-    date: string
-  }>
-}
+import AuctionRepository from "@/src/Repository/AuctionRepository";
+import Auction from "@/src/model/Auction";
 
 const AuctionDetailScreen = () => {
   const route = useRoute()
   const navigation = useNavigation()
-  const { auctionId } = route.params as { auctionId: string }
+  const { auctionId } = route.params as { auctionId: number }
 
-  const [auction, setAuction] = useState<AuctionDetail | null>(null)
+  const [auction, setAuction] = useState<Auction | null>(null)
   const [loading, setLoading] = useState(true)
   const [bidAmount, setBidAmount] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -54,54 +32,7 @@ const AuctionDetailScreen = () => {
     // Chargement des détails de l'enchère
     const loadAuctionDetail = async () => {
       try {
-        // Intégration avec le backend existant
-        // Exemple: const response = await api.getAuctionDetail(auctionId);
-
-        // Pour la démo, on simule des données
-        setTimeout(() => {
-          const mockAuction: AuctionDetail = {
-            id: auctionId,
-            title: "Guide complet Photoshop 2023",
-            description:
-              "PDF de 250 pages avec toutes les techniques avancées pour la retouche photo, la création de maquettes, et les effets spéciaux. Inclut également des vidéos tutoriels exclusives et des fichiers sources pour tous les exercices.",
-            startingPrice: 15,
-            currentBid: 35,
-            imageUrl: "https://example.com/photoshop.jpg",
-            endDate: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 jours
-            bidsCount: 8,
-            seller: {
-              id: "s1",
-              name: "DesignPro",
-              rating: 4.7,
-            },
-            bids: [
-              {
-                id: "b1",
-                userId: "u1",
-                userName: "JeanDupont",
-                amount: 35,
-                date: new Date(Date.now() - 3600000).toISOString(), // 1 heure
-              },
-              {
-                id: "b2",
-                userId: "u2",
-                userName: "SophieLemaire",
-                amount: 30,
-                date: new Date(Date.now() - 7200000).toISOString(), // 2 heures
-              },
-              {
-                id: "b3",
-                userId: "u3",
-                userName: "MarcDubois",
-                amount: 25,
-                date: new Date(Date.now() - 10800000).toISOString(), // 3 heures
-              },
-            ],
-          }
-
-          setAuction(mockAuction)
-          setLoading(false)
-        }, 1000)
+          AuctionRepository.getInstance().getAuctionById(auctionId).then(setAuction).finally(() => setLoading(false))
       } catch (error) {
         console.error("Erreur lors du chargement des détails de l'enchère:", error)
         setLoading(false)
@@ -110,35 +41,6 @@ const AuctionDetailScreen = () => {
 
     loadAuctionDetail()
   }, [auctionId])
-
-  // Calcul du temps restant
-  const getRemainingTime = (endDate: string) => {
-    const end = new Date(endDate).getTime()
-    const now = new Date().getTime()
-    const distance = end - now
-
-    if (distance < 0) return "Terminé"
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-
-    if (days > 0) return `${days}j ${hours}h`
-    if (hours > 0) return `${hours}h ${minutes}m`
-    return `${minutes}m`
-  }
-
-  // Formater la date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
 
   // Gérer l'enchère
   const handleBid = async () => {
@@ -150,48 +52,15 @@ const AuctionDetailScreen = () => {
       return
     }
 
-    if (amount <= auction.currentBid) {
+    if (amount <= auction.highestOffer) {
       Alert.alert(
         "Enchère trop basse",
-        `Votre enchère doit être supérieure à l'enchère actuelle (${auction.currentBid} €).`,
+        `Votre enchère doit être supérieure à l'enchère actuelle (${auction.highestOffer} €).`,
       )
       return
     }
 
     setSubmitting(true)
-
-    try {
-      // Intégration avec le backend existant
-      // Exemple: const response = await api.placeBid(auctionId, amount);
-
-      // Pour la démo, on simule une réponse
-      setTimeout(() => {
-        // Mettre à jour l'enchère localement
-        setAuction({
-          ...auction,
-          currentBid: amount,
-          bidsCount: auction.bidsCount + 1,
-          bids: [
-            {
-              id: `b${auction.bids.length + 1}`,
-              userId: "currentUser",
-              userName: "Vous",
-              amount: amount,
-              date: new Date().toISOString(),
-            },
-            ...auction.bids,
-          ],
-        })
-
-        setBidAmount("")
-        Alert.alert("Enchère placée", "Votre enchère a été placée avec succès.")
-        setSubmitting(false)
-      }, 1000)
-    } catch (error) {
-      console.error("Erreur lors de l'enchère:", error)
-      Alert.alert("Erreur", "Impossible de placer votre enchère. Veuillez réessayer.")
-      setSubmitting(false)
-    }
   }
 
   if (loading) {
@@ -211,10 +80,6 @@ const AuctionDetailScreen = () => {
     )
   }
 
-  const remainingTime = getRemainingTime(auction.endDate)
-  const isEnded = remainingTime === "Terminé"
-  const isEnding = remainingTime.includes("h") && !remainingTime.includes("j")
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -229,25 +94,25 @@ const AuctionDetailScreen = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Image
-          source={{ uri: auction.imageUrl }}
+            source={{ uri: auction.images[0].url }}
           style={styles.auctionImage}
-          defaultSource={require("../../assets/placeholder.png")}
+          //defaultSource={require("../../assets/placeholder.png")}
         />
 
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>{auction.title}</Text>
+          <Text style={styles.title}>{auction.name}</Text>
 
           <View style={styles.priceContainer}>
             <View>
               <Text style={styles.priceLabel}>Enchère actuelle</Text>
-              <Text style={styles.currentPrice}>{auction.currentBid} €</Text>
+              <Text style={styles.currentPrice}>{Math.max(auction.highestOffer,auction.startingPrice)} €</Text>
               <Text style={styles.startingPrice}>Prix de départ: {auction.startingPrice} €</Text>
             </View>
 
             <View>
               <Text style={styles.timeLabel}>Temps restant</Text>
-              <Text style={[styles.timeRemaining, isEnded && styles.ended, isEnding && styles.ending]}>
-                {remainingTime}
+              <Text style={[styles.timeRemaining, auction.endAt.getTime() < Date.now() && styles.ended, auction.isEnding() && styles.ending]}>
+                {auction.getRemainingTimeString()}
               </Text>
             </View>
           </View>
@@ -255,22 +120,20 @@ const AuctionDetailScreen = () => {
           <View style={styles.sellerContainer}>
             <Text style={styles.sectionTitle}>Vendeur</Text>
             <View style={styles.sellerInfo}>
-              <View style={styles.sellerAvatar}>
-                <Text style={styles.sellerInitial}>{auction.seller.name.charAt(0)}</Text>
-              </View>
+              <Image style={styles.sellerAvatar} src={auction.author.avatarUrl} />
               <View style={styles.sellerDetails}>
-                <Text style={styles.sellerName}>{auction.seller.name}</Text>
+                <Text style={styles.sellerName}>{auction.author.name}</Text>
                 <View style={styles.ratingContainer}>
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Feather
                       key={index}
                       name="star"
                       size={16}
-                      color={index < Math.floor(auction.seller.rating) ? "#f1c40f" : "#ddd"}
+                      color={index < Math.floor(5) ? "#f1c40f" : "#ddd"}
                       style={{ marginRight: 2 }}
                     />
                   ))}
-                  <Text style={styles.ratingText}>{auction.seller.rating}/5</Text>
+                  <Text style={styles.ratingText}>{auction.author.rating}/5</Text>
                 </View>
               </View>
             </View>
@@ -283,7 +146,7 @@ const AuctionDetailScreen = () => {
 
           <View style={styles.bidsContainer}>
             <Text style={styles.sectionTitle}>Historique des enchères</Text>
-            {auction.bids.length > 0 ? (
+            {/*auction.bids.length #TODO*/  0 > 0 ? (
               auction.bids.map((bid) => (
                 <View key={bid.id} style={styles.bidItem}>
                   <View style={styles.bidInfo}>
@@ -300,11 +163,11 @@ const AuctionDetailScreen = () => {
         </View>
       </ScrollView>
 
-      {!isEnded && (
+      {auction.isEnded() && (
 
         <View style={styles.bidFormContainer}>
           <View style={{width:"60%", marginRight:12}}>
-          <LMSTextInput type="label" placeholder={`Enchère min. ${auction.currentBid + 1} €`} value={bidAmount} onChangeText={setBidAmount} />
+          <LMSTextInput type="label" placeholder={`Enchère min. ${auction.highestOffer + 1} €`} value={bidAmount} onChangeText={setBidAmount} />
 
           </View>
 
