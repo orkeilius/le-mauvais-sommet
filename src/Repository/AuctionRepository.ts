@@ -15,8 +15,12 @@ export default class AuctionRepository extends AbscractRepository {
         return AuctionRepository.instance;
     }
 
-    public async getAuctionList(page: number, filter="string"): Promise<Auction[]> {
-        const response = await this.getConnection().get(`api/auctions?page=${page}&filter=${filter}`);
+    public async getAuctionList(page: number, filter:string=""): Promise<Auction[]> {
+        let url = `api/auctions?page=${page}`;
+        if (filter !== "") {
+            url += `&filter=${filter}`;
+        }
+        const response = await this.getConnection().get(url);
         return response.data.data.map(e =>  Auction.mapFromJson(e))
     }
 

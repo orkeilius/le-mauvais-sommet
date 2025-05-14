@@ -107,7 +107,6 @@ const MainNavigator = () => {
 
 const AppNavigator = () => {
     const authContext = useContext(AuthContext)
-    console.log(authContext.user)
 
     return <NavigationContainer>{authContext.user !== null ? <MainNavigator/> : <AuthNavigator/>}</NavigationContainer>
 }

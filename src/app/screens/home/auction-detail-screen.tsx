@@ -94,7 +94,7 @@ const AuctionDetailScreen = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Image
-            source={{ uri: auction.images[0].url }}
+            source={{ uri: auction.images.length !== 0 ? auction.images[0].url : "placeholder.png" }}
           style={styles.auctionImage}
           //defaultSource={require("../../assets/placeholder.png")}
         />

@@ -55,7 +55,6 @@ export default class Auction {
             json.highest_offer,
             json.images.map((image: object) => Image.mapFromJson(image))
         );
-        console.log(json.offers_count)
         if (json.offers_count !== undefined) {
             auction.offersCount = json.offers_count
         }

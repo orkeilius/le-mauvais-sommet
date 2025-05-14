@@ -5,7 +5,6 @@ export abstract class AbscractRepository{
     private readonly token: TokenSingleton;
     protected constructor(){
         this.token = TokenSingleton.getInstance();
-        console.log(process.env.EXPO_PUBLIC_BACKEND_URL);
 
 
 

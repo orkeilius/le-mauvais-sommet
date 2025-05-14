@@ -17,7 +17,6 @@ export default function AuthStore({children}: Readonly<{ children: ReactNode }>)
     const authReducer = (state, {action, value}) => {
         switch (action) {
             case "login":
-                console.log(state);
                 return value;
             case "logout":
                 return null
@@ -30,7 +29,6 @@ export default function AuthStore({children}: Readonly<{ children: ReactNode }>)
 
     useEffect(() => {
         TokenSingleton.getInstance().getTokenFromStorage().then(() => {
-            console.warn(TokenSingleton.getInstance().getToken());
             if (TokenSingleton.getInstance().getToken() !== null) {
                 LoginRepository.getInstance().getLoggedUser().then(newUser => {
                     dispatch({action: "login", value: newUser});

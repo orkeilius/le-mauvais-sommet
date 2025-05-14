@@ -1,5 +1,7 @@
 import User from '../model/User';
 import {AbscractRepository} from './abscractRepository';
+import Auction from "@/src/model/Auction";
+import Offer from "@/src/model/Offer";
 
 
 export default class UserRepository extends AbscractRepository {
@@ -38,16 +40,20 @@ export default class UserRepository extends AbscractRepository {
     async getOffersFromUser(user: User, page= 1): Promise<Offert[]> {
         const response = await super.getConnection().get(`api/users/${user.id}/offer?page=${page}`);
         return response.data.map((offer: Offert) => {
-            offer.author = user;
-            return offer;
+            offer.author = user
+            return Offer.mapFromJson(offer);
         });
     }
 
-    async getAuctionFromUser(user: User, page=1): Promise<Auction[]> {
-        const response = await super.getConnection().get(`api/users/${user.id}/auction?page=${page}`);
+    async getAuctionFromUser(user: User, page=1,filter=""): Promise<Auction[]> {
+        let url = `api/users/${user.id}/auction?page=${page}`;
+        if (filter !== "") {
+            url += `&filter=${filter}`;
+        }
+        const response = await super.getConnection().get(url);
         return response.data.data.map((auction: Auction) => {
-            auction.author = user;
-            return auction;
+            auction.author = user
+            return Auction.mapFromJson(auction);
         });
     }
 

@@ -33,7 +33,6 @@ class TokenSingleton {
     public setToken(token: string,refreshToken:string,refreshTime:number): void {
         this.token = token;
         this.refreshToken = refreshToken;
-        console.log(refreshTime);
         clearTimeout(this.interval)
         this.interval = setInterval(() => LoginRepository.getInstance().refreshToken(this.token), refreshTime*0.5);
         AsyncStorage.setItem('token', token);

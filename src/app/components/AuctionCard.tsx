@@ -5,8 +5,8 @@ import {useNavigation} from "@react-navigation/native";
 
 export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
     const navigation = useNavigation()
-
-    const image = item.images[0]?.url ? item.images[0].url : "https://www.example.com/placeholder.png"
+    console.log(item)
+    const image = item?.images.length !== 0 ? item.images[0].url : "https://www.example.com/placeholder.png"
 
     return (
         <TouchableOpacity
@@ -41,7 +41,6 @@ export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
                 <View style={styles.auctionFooter}>
                     <Text style={styles.sellerName}>Par {item.author.name}</Text>
                     <Text style={styles.bidsCount}>
-                        {console.log(item)}
                         {item.offersCount} {item.offersCount===1 ? "enchère" : "enchères"}
                     </Text>
                 </View>

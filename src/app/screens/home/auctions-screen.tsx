@@ -19,7 +19,6 @@ const AuctionsScreen = () => {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState("all")
-  console.log(auctions)
   const loadAuctions = async () => {
     try {
       AuctionRepository.getInstance().getAuctionList(0,"").then(

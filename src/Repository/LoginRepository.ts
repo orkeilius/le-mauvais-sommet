@@ -18,7 +18,6 @@ export default class LoginRepository extends AbscractRepository{
     }
 
     async login(email: string, password: string): Promise<User> {
-        console.log(process.env.EXPO_PUBLIC_BACKEND_URL);
         const response = await axios.postForm(`${process.env.EXPO_PUBLIC_BACKEND_URL}oauth/token`, {
             client_id: process.env.EXPO_PUBLIC_BACKEND_ID,
             client_secret: process.env.EXPO_PUBLIC_BACKEND_KEY,
@@ -26,7 +25,6 @@ export default class LoginRepository extends AbscractRepository{
             username: email,
             password,
         });
-        console.log(response.data);
         TokenSingleton.getInstance().setToken(response.data.access_token, response.data.refresh_token, response.data.expires_in);
         return this.getLoggedUser();
     }
@@ -42,7 +40,6 @@ export default class LoginRepository extends AbscractRepository{
     }
 
     async getLoggedUser(): Promise<User> {
-        console.log(this.getConnection().getUri())
         const response = await this.getConnection().get('api/users/self');
         return User.mapFromJson(response.data);
     }
