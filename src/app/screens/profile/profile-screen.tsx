@@ -1,14 +1,14 @@
 "use client"
 
 import {useContext, useEffect, useState} from "react"
-import {FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native"
+import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native"
 import {SafeAreaView} from "react-native-safe-area-context"
 import {Feather} from "@expo/vector-icons"
 import {useNavigation} from "@react-navigation/native"
 import {AuthContext} from "@/src/app/Store/AuthStore";
 import User from "@/src/model/User";
 import Auction from "@/src/model/Auction";
-import AuctionCard from "@/src/app/components/AuctionCard";
+import AuctionList from "@/src/app/components/AuctionList";
 
 // 'purchases', 'sales', 'active'
 
@@ -29,12 +29,6 @@ function ProfileScreen() {
             user.getAuction(1, "ongoing").then(setAuctions)
         }
     }, [activeTab]);
-
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleDateString("fr-FR", {year: "numeric", month: "long", day: "numeric"})
-    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -97,28 +91,14 @@ function ProfileScreen() {
                                 actives</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.tabsContent}>
-                        <FlatList
-                            data={auctions}
-                            renderItem={elem => <AuctionCard item={elem.item}/>}
-                            keyExtractor={item => item.id}
-                            contentContainerStyle={styles.auctionsList}
-                            showsVerticalScrollIndicator={false}
-                            ListEmptyComponent={
-                                <View style={styles.tabContent}>
-                                    <Feather name="inbox" size={60} color="#ccc"/>
-                                    <Text style={styles.tabContent}>Aucune enchère disponible</Text>
-                                </View>
-                            }
-                        />
-                    </View>
+
+                       <AuctionList auctions={auctions} />
                 </View>
             </ScrollView>
         </SafeAreaView>
     )
 }
 
-/*#TODO*/
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -148,36 +128,7 @@ const styles = StyleSheet.create({
             "bold",
         color:
             "#333",
-    }
-    ,
-    loadingContainer: {
-        flex: 1,
-        justifyContent:
-            "center",
-        alignItems:
-            "center",
-    }
-    ,
-    errorContainer: {
-        flex: 1,
-        justifyContent:
-            "center",
-        alignItems:
-            "center",
-        padding:
-            20,
-    }
-    ,
-    errorText: {
-        fontSize: 16,
-        color:
-            "#666",
-        marginTop:
-            10,
-        textAlign:
-            "center",
-    }
-    ,
+    },
     profileHeader: {
         flexDirection: "row",
         alignItems:
@@ -295,25 +246,6 @@ const styles = StyleSheet.create({
         fontWeight:
             "600",
     }
-    ,
-    tabContent: {
-        padding: 20,
-        minHeight:
-            200,
-        alignItems:
-            "center",
-        justifyContent:
-            "center",
-    }
-    ,
-    emptyTabText: {
-        fontSize: 16,
-        color:
-            "#999",
-        textAlign:
-            "center",
-    }
-    ,
 })
 
 export default ProfileScreen

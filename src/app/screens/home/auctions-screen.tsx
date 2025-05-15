@@ -2,17 +2,15 @@ import { useState, useEffect } from "react"
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import AuctionRepository from "@/src/Repository/AuctionRepository";
 import AuctionCard from "@/src/app/components/AuctionCard";
 import Auction from "@/src/model/Auction";
+import AuctionList from "@/src/app/components/AuctionList";
 
 const AuctionsScreen = () => {
   const [auctions, setAuctions] = useState<Auction[]>([])
@@ -75,27 +73,9 @@ const AuctionsScreen = () => {
           <Text style={[styles.filterText, filter === "new" && styles.activeFilterText]}>Nouvelles</Text>
         </TouchableOpacity>
       </View>
+      <AuctionList auctions={auctions}/>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3498db" />
-        </View>
-      ) : (
-        <FlatList
-          data={auctions}
-          renderItem={elem => <AuctionCard item={elem.item} />}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.auctionsList}
-          showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Feather name="inbox" size={60} color="#ccc" />
-              <Text style={styles.emptyText}>Aucune enchère disponible</Text>
-            </View>
-          }
-        />
-      )}
+
     </SafeAreaView>
   )
 }
@@ -148,9 +128,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  auctionsList: {
-    padding: 15,
   },
   auctionCard: {
     flexDirection: "row",
@@ -219,17 +196,7 @@ const styles = StyleSheet.create({
   bidsCount: {
     fontSize: 12,
     color: "#999",
-  },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 50,
-  },
-  emptyText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#999",
-  },
+  }
 })
 
 export default AuctionsScreen
