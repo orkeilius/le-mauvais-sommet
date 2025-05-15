@@ -51,7 +51,6 @@ function ProfileScreen() {
                         <Image
                             source={{uri: user.avatarUrl}}
                             style={styles.avatar}
-                            defaultSource={require("../../assets/default-avatar.png")}
                         />
                         <View style={styles.profileInfo}>
                             <Text style={styles.userName}>{user.name}</Text>
