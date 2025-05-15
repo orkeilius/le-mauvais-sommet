@@ -1,30 +1,33 @@
 import Auction from "@/src/model/Auction";
-import {FlatList, Text, View,StyleSheet} from "react-native";
+import {FlatList, StyleSheet, Text, View} from "react-native";
 import AuctionCard from "@/src/app/components/AuctionCard";
 import {Feather} from "@expo/vector-icons";
+import {Suspense} from "react";
 
-interface InputProps{
+interface InputProps {
     auctions: Auction[];
 }
 
-export default function AuctionList(props : Readonly<InputProps>){
+export default function AuctionList(props: Readonly<InputProps>) {
 
 
-    return(
-        <FlatList
-            data={props.auctions}
-            renderItem={elem => <AuctionCard item={elem.item} />}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.auctionsList}
-            showsVerticalScrollIndicator={false}
-            //refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-            ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                    <Feather name="inbox" size={60} color="#ccc" />
-                    <Text style={styles.emptyText}>Aucune enchère disponible</Text>
-                </View>
-            }
-        />
+    return (
+        <Suspense fallback={<Text>Loading...</Text>}>
+            <FlatList
+                data={props.auctions}
+                renderItem={elem => <AuctionCard item={elem.item}/>}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.auctionsList}
+                showsVerticalScrollIndicator={false}
+                //refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                        <Feather name="inbox" size={60} color="#ccc"/>
+                        <Text style={styles.emptyText}>Aucune enchère disponible</Text>
+                    </View>
+                }
+            />
+        </Suspense>
     )
 }
 
