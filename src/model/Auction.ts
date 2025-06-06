@@ -14,7 +14,7 @@ export default class Auction {
     endAt: Date;
     author: User;
     highestOffer: number;
-    offers?: Offer[];
+    offers: Offer[];
     offersCount?: number;
     images: Image[];
 
@@ -28,7 +28,7 @@ export default class Auction {
         endAt: string,
         author: User,
         highestOffer: number,
-        images: Image[]
+        images: Image[],
     ) {
         this.id = id;
         this.createdAt = new Date(createdAt);
@@ -40,9 +40,11 @@ export default class Auction {
         this.author = author;
         this.highestOffer = highestOffer;
         this.images = images
+        this.offers = []
     }
 
     public static mapFromJson(json: object): Auction {
+        console.log(json)
         const auction = new Auction(
             json.id,
             new Date(json.created_at),
@@ -57,6 +59,9 @@ export default class Auction {
         );
         if (json.offers_count !== undefined) {
             auction.offersCount = json.offers_count
+        }
+        if (json.offers !== undefined) {
+            auction.offers = json.offers.map((offer: object) => Offer.mapFromJson(offer));
         }
         return auction;
     }

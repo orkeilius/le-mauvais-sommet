@@ -28,7 +28,7 @@ const AuctionDetailScreen = () => {
   const [loading, setLoading] = useState(true)
   const [bidAmount, setBidAmount] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
-
+  console.log(auction)
   const loadAuctionDetail = async () => {
     try {
       AuctionRepository.getInstance().getAuctionById(auctionId).then(setAuction).finally(() => setLoading(false))
@@ -160,14 +160,14 @@ const AuctionDetailScreen = () => {
 
           <View style={styles.bidsContainer}>
             <Text style={styles.sectionTitle}>Historique des enchères</Text>
-            {/*auction.bids.length #TODO*/  0 > 0 ? (
-              auction.bids.map((bid) => (
-                <View key={bid.id} style={styles.bidItem}>
+            {auction.offers.length > 0 ? (
+              auction.offers.map((offers) => (
+                <View key={offers.id} style={styles.bidItem}>
                   <View style={styles.bidInfo}>
-                    <Text style={styles.bidderName}>{bid.userName}</Text>
-                    <Text style={styles.bidDate}>{formatDate(bid.date)}</Text>
+                    <Text style={styles.bidderName}>{offers.author.name}</Text>
+                    <Text style={styles.bidDate}>{offers.createdAt.toLocaleString()}</Text>
                   </View>
-                  <Text style={styles.bidAmount}>{bid.amount} €</Text>
+                  <Text style={styles.bidAmount}>{offers.price} €</Text>
                 </View>
               ))
             ) : (
