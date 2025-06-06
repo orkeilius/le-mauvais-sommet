@@ -1,11 +1,13 @@
 "use client";
 
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View,} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useNavigation} from "@react-navigation/native";
 import {Feather} from "@expo/vector-icons";
 import LMSTextInput from "../../components/LMSTextInput";
+import LoginRepository from "@/src/Repository/LoginRepository";
+import {AuthContext} from "@/src/app/Store/AuthStore";
 
 const SettingsScreen = () => {
     type RootStackParamList = {
@@ -24,6 +26,7 @@ const SettingsScreen = () => {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const authContext = useContext(AuthContext);
 
     const handleSaveProfile = () => {
         Alert.alert("Profil mis à jour", "Vos modifications ont été enregistrées.");
@@ -54,20 +57,7 @@ const SettingsScreen = () => {
     };
 
     const handleLogout = () => {
-        Alert.alert("Déconnexion", "Êtes-vous sûr de vouloir vous déconnecter ?", [
-            {text: "Annuler", style: "cancel"},
-            {
-                text: "Déconnexion",
-                style: "destructive",
-                onPress: () => {
-                    // Pour la démo, on navigue vers l'écran de connexion
-                    navigation.reset({
-                        index: 0,
-                        routes: [{name: "Login"}],
-                    });
-                },
-            },
-        ]);
+        authContext.dispatch({action:"logout",value:null});
     };
 
     const handleDeleteAccount = () => {
@@ -281,6 +271,7 @@ const SettingsScreen = () => {
                         </View>
                         <Feather name="chevron-right" size={20} color="#ccc"/>
                     </TouchableOpacity>
+                    
 
                     <TouchableOpacity style={styles.actionButton}>
                         <View style={styles.actionInfo}>

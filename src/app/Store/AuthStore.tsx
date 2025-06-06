@@ -4,7 +4,7 @@ import LoginRepository from "@/src/Repository/LoginRepository";
 
 interface AuthStoreProps {
     user: User | null,
-    dispatch: React.Dispatch<{ action: "login"; value: User | null }>;
+    dispatch: React.Dispatch<{ action: "login"|"logout"; value: User | null }>;
 }
 
 export const AuthContext = createContext<AuthStoreProps>({
