@@ -16,7 +16,7 @@ const AuctionsScreen = () => {
     const [filter, setFilter] = useState<"all" | "endsood" | "new" | "highest">("all")
     const loadAuctions = async () => {
         try {
-            AuctionRepository.getInstance().getAuctionList(0, "").then(
+            AuctionRepository.getInstance().getAuctionList(0, filter).then(
                 (newAuctions: Auction[]) => {
                     setAuctions(newAuctions)
                 }
