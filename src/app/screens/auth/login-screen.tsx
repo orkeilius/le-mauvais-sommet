@@ -34,9 +34,11 @@ const LoginScreen = () => {
 		}
 
 		try {
-			LoginRepository.getInstance().login(email, password).then(response => authContext.dispatch({action:"login", value:response}));
+			const user = await LoginRepository.getInstance().login(email, password);
+			authContext.dispatch({action:"login", value: user});
 		} catch (error) {
-			Alert.alert("Erreur de connexion", "Identifiants incorrects");
+			console.error("Erreur de connexion:", error);
+			Alert.alert("Erreur de connexion", "Identifiants incorrects ou problème de connexion");
 		}
 	};
 

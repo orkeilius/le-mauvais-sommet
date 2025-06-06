@@ -18,6 +18,7 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 import {Feather} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import LMSTextInput from "../../components/LMSTextInput";
+import AuctionRepository from "@/src/Repository/AuctionRepository";
 
 // Types
 interface ProductData {
@@ -34,7 +35,7 @@ interface ProductData {
 const AddProductScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const productId = route.params?.productId; // Safely access productId with optional chaining
+    const productId = (route.params as any)?.productId; // Safely access productId with optional chaining
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState<ProductData>({
         id: "",
@@ -143,34 +144,51 @@ const AddProductScreen = () => {
         setLoading(true);
 
         try {
-            // Handle adding or editing product
+            const auctionRepository = AuctionRepository.getInstance();
+            
             if (productId) {
-                // Edit product logic (replace with actual API call)
-                setTimeout(() => {
-                    setLoading(false);
-                    Alert.alert("Succès", "Votre produit a été modifié avec succès", [
-                        {
-                            text: "OK",
-                            onPress: () => navigation.goBack(),
-                        },
-                    ]);
-                }, 1500);
+                // Edit product logic (à implémenter plus tard)
+                setLoading(false);
+                Alert.alert("Succès", "Votre produit a été modifié avec succès", [
+                    {
+                        text: "OK",
+                        onPress: () => navigation.goBack(),
+                    },
+                ]);
             } else {
-                // Create product logic (replace with actual API call)
-                setTimeout(() => {
-                    setLoading(false);
-                    Alert.alert("Succès", "Votre produit a été créé avec succès", [
-                        {
-                            text: "OK",
-                            onPress: () => navigation.goBack(),
-                        },
-                    ]);
-                }, 1500);
+                // Create product logic - appel API réel
+                const startingPrice = parseFloat(form.price);
+                const durationDays = parseInt(form.duration);
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + durationDays);
+
+                // Préparer l'image pour l'upload
+                const images = form.image ? [{
+                    uri: form.image,
+                    type: 'image/jpeg',
+                    name: 'product_image.jpg'
+                }] : [];
+
+                const createdAuction = await auctionRepository.create(
+                    form.title,
+                    form.description,
+                    startingPrice,
+                    endDate,
+                    images
+                );
+
+                setLoading(false);
+                Alert.alert("Succès", "Votre produit a été créé avec succès", [
+                    {
+                        text: "OK",
+                        onPress: () => navigation.goBack(),
+                    },
+                ]);
             }
         } catch (error) {
             console.error("Erreur lors de la création/édition du produit:", error);
             setLoading(false);
-            Alert.alert("Erreur", "Une erreur est survenue");
+            Alert.alert("Erreur", "Une erreur est survenue lors de la création du produit");
         }
     };
 
@@ -241,6 +259,7 @@ const AddProductScreen = () => {
                         <LMSTextInput
                             label="Description"
                             placeholder="Description détaillée du produit"
+                            type="label"
                             multiline={true}
                             numberOfLines={5}
                             value={form.description}
