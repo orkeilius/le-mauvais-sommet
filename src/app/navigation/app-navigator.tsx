@@ -2,6 +2,7 @@ import {createBottomTabNavigator} from "@react-navigation/bottom-tabs"
 import {createNativeStackNavigator} from "@react-navigation/native-stack"
 import {NavigationContainer} from "@react-navigation/native"
 import {Feather} from "@expo/vector-icons"
+import {View, ActivityIndicator, StyleSheet} from "react-native"
 
 // Écrans d'authentification
 import LoginScreen from "../screens/auth/login-screen"
@@ -108,8 +109,25 @@ const MainNavigator = () => {
 const AppNavigator = () => {
     const authContext = useContext(AuthContext)
 
+    if (authContext.isLoading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#3498db" />
+            </View>
+        )
+    }
+
     return <NavigationContainer>{authContext.user !== null ? <MainNavigator/> : <AuthNavigator/>}</NavigationContainer>
 }
+
+const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+    },
+})
 
 export default AppNavigator
 

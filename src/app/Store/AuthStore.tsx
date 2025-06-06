@@ -1,31 +1,39 @@
 import {createContext, ReactNode, useEffect, useMemo, useReducer} from "react";
 import TokenSingleton from "@/src/Repository/TokenSingleton";
 import LoginRepository from "@/src/Repository/LoginRepository";
+import User from "@/src/model/User";
 
 interface AuthStoreProps {
     user: User | null,
-    dispatch: React.Dispatch<{ action: "login"|"logout"; value: User | null }>;
+
+    isLoading: boolean,
+    dispatch: React.Dispatch<{ action: "login" | "logout" | "setLoading"; value: User | null | boolean }>;
+
 }
 
 export const AuthContext = createContext<AuthStoreProps>({
-    user: null, dispatch: () => {
+    user: null, 
+    isLoading: true,
+    dispatch: () => {
     }
 });
 
 export default function AuthStore({children}: Readonly<{ children: ReactNode }>) {
 
-    const authReducer = (state, {action, value}) => {
+    const authReducer = (state: any, {action, value}: { action: string; value: any }) => {
         switch (action) {
             case "login":
-                return value;
+                return { ...state, user: value, isLoading: false };
             case "logout":
-                return null
+                return { ...state, user: null, isLoading: false };
+            case "setLoading":
+                return { ...state, isLoading: value };
             default:
                 return state;
         }
     }
 
-    const [user, dispatch] = useReducer(authReducer, null);
+    const [authState, dispatch] = useReducer(authReducer, { user: null, isLoading: true });
 
     useEffect(() => {
         TokenSingleton.getInstance().getTokenFromStorage().then(() => {
@@ -33,11 +41,18 @@ export default function AuthStore({children}: Readonly<{ children: ReactNode }>)
                 LoginRepository.getInstance().getLoggedUser().then(newUser => {
                     dispatch({action: "login", value: newUser});
                 })
+            } else {
+                dispatch({action: "setLoading", value: false});
             }
         })
     }, []);
 
-    const contextValue  = useMemo(() :AuthStoreProps => ({user,dispatch}),[user])
+    const contextValue = useMemo(() : AuthStoreProps => ({
+        user: authState.user,
+        isLoading: authState.isLoading,
+        dispatch
+    }), [authState])
+    
     return (
         <AuthContext.Provider value={contextValue}>
             {children}
