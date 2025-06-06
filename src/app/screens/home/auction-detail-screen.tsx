@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useRoute, useNavigation } from "@react-navigation/native"
 import AuctionRepository from "@/src/Repository/AuctionRepository";
+import OfferRepository from "@/src/Repository/OfferRepository";
 import Auction from "@/src/model/Auction";
 
 const AuctionDetailScreen = () => {
@@ -25,28 +26,30 @@ const AuctionDetailScreen = () => {
 
   const [auction, setAuction] = useState<Auction | null>(null)
   const [loading, setLoading] = useState(true)
-  const [bidAmount, setBidAmount] = useState("")
+  const [bidAmount, setBidAmount] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
 
+  const loadAuctionDetail = async () => {
+    try {
+      AuctionRepository.getInstance().getAuctionById(auctionId).then(setAuction).finally(() => setLoading(false))
+    } catch (error) {
+      console.error("Erreur lors du chargement des détails de l'enchère:", error)
+      setLoading(false)
+    }
+  }
+  
   useEffect(() => {
     // Chargement des détails de l'enchère
-    const loadAuctionDetail = async () => {
-      try {
-          AuctionRepository.getInstance().getAuctionById(auctionId).then(setAuction).finally(() => setLoading(false))
-      } catch (error) {
-        console.error("Erreur lors du chargement des détails de l'enchère:", error)
-        setLoading(false)
-      }
-    }
+
 
     loadAuctionDetail()
   }, [auctionId])
-
-  // Gérer l'enchère
+  
   const handleBid = async () => {
     if (!auction) return
 
-    const amount = Number(bidAmount)
+    const amount = bidAmount
+    console.log(amount,Math.max(auction.highestOffer,auction.startingPrice))
     if (isNaN(amount) || amount <= 0) {
       Alert.alert("Montant invalide", "Veuillez entrer un montant valide.")
       return
@@ -61,6 +64,17 @@ const AuctionDetailScreen = () => {
     }
 
     setSubmitting(true)
+    try {
+      const response = await OfferRepository.getInstance().postOffer(auction.id, amount)
+      Alert.alert("Succès", "Votre enchère a été soumise avec succès.")
+      setBidAmount("") // Réinitialise le champ de saisie
+    } catch (error) {
+      Alert.alert("Erreur", "Une erreur s'est produite lors de la soumission de votre enchère.")
+      console.error("Erreur lors de l'enchère:", error)
+    } finally {
+      setSubmitting(false)
+      loadAuctionDetail()
+    }
   }
 
   if (loading) {

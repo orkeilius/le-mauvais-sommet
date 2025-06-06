@@ -12,7 +12,7 @@ interface AuthStoreProps {
 }
 
 export const AuthContext = createContext<AuthStoreProps>({
-    user: null, 
+    user: null,
     isLoading: true,
     dispatch: () => {
     }
@@ -23,36 +23,41 @@ export default function AuthStore({children}: Readonly<{ children: ReactNode }>)
     const authReducer = (state: any, {action, value}: { action: string; value: any }) => {
         switch (action) {
             case "login":
-                return { ...state, user: value, isLoading: false };
+                return {...state, user: value, isLoading: false};
             case "logout":
-                return { ...state, user: null, isLoading: false };
+                return {...state, user: null, isLoading: false};
             case "setLoading":
-                return { ...state, isLoading: value };
+                return {...state, isLoading: value};
             default:
                 return state;
         }
     }
 
-    const [authState, dispatch] = useReducer(authReducer, { user: null, isLoading: true });
+    const [authState, dispatch] = useReducer(authReducer, {user: null, isLoading: true});
 
     useEffect(() => {
         TokenSingleton.getInstance().getTokenFromStorage().then(() => {
             if (TokenSingleton.getInstance().getToken() !== null) {
                 LoginRepository.getInstance().getLoggedUser().then(newUser => {
                     dispatch({action: "login", value: newUser});
-                })
+                }).catch((error) => {
+                        if (error?.response?.status === 403) {
+                            TokenSingleton.getInstance().setToken("", "", 0);
+                            dispatch({action: "logout", value: null});
+                        }
+                    })
             } else {
                 dispatch({action: "setLoading", value: false});
             }
         })
     }, []);
 
-    const contextValue = useMemo(() : AuthStoreProps => ({
+    const contextValue = useMemo((): AuthStoreProps => ({
         user: authState.user,
         isLoading: authState.isLoading,
         dispatch
     }), [authState])
-    
+
     return (
         <AuthContext.Provider value={contextValue}>
             {children}
