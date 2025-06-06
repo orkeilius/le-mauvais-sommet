@@ -163,14 +163,15 @@ const AuctionDetailScreen = () => {
         </View>
       </ScrollView>
 
-      {auction.isEnded() && (
-
+      {!auction.isEnded() && (
         <View style={styles.bidFormContainer}>
-          <View style={{width:"60%", marginRight:12}}>
-          <LMSTextInput type="label" placeholder={`Enchère min. ${auction.highestOffer + 1} €`} value={bidAmount} onChangeText={setBidAmount} />
-
-          </View>
-
+          <LMSTextInput
+            style={styles.bidInput}
+            placeholder={`Enchère min. ${auction.highestOffer + 1} €`}
+            value={bidAmount}
+            onChangeText={setBidAmount}
+            keyboardType="numeric"
+          />
           <TouchableOpacity
             style={[styles.bidButton, submitting && styles.bidButtonDisabled]}
             onPress={handleBid}
@@ -351,6 +352,7 @@ const styles = StyleSheet.create({
   },
   bidInfo: {
     flex: 1,
+    height: 10,
   },
   bidderName: {
     fontSize: 14,
@@ -375,42 +377,47 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   bidFormContainer: {
-    padding: 20,
+    display: "flex",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: "#eee",
-    justifyContent: "center",
-   
     backgroundColor: "#fff",
     flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    width: "100%",
+    bottom: 0,
+    height: 80,
   },
   bidInput: {
+    height:60,
     flex: 1,
-    height: 50,
     backgroundColor: "#f8f9fa",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    fontSize: 16,
+    borderRadius: 8,
+    fontSize: 14, // Ajustement de la taille de police
     marginRight: 10,
     borderWidth: 1,
     borderColor: "#ddd",
+    marginBottom:0,
   },
   bidButton: {
+    width: 80,
     backgroundColor: "#3498db",
-    borderRadius: 10,
-    height: 50,
+    borderRadius: 8,
+    height: 60, // Réduction de la hauteur
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   bidButtonDisabled: {
     backgroundColor: "#9ec6e5",
   },
   bidButtonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14, // Ajustement de la taille de police
     fontWeight: "600",
   },
 })
 
 export default AuctionDetailScreen
-
