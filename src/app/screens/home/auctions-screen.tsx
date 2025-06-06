@@ -6,7 +6,8 @@ import AuctionRepository from "@/src/Repository/AuctionRepository";
 import Auction from "@/src/model/Auction";
 import AuctionList from "@/src/app/components/AuctionList";
 import LMSFilter from "@/src/app/components/Filtre";
-
+import SearchButton from "@/src/app/components/SearchButton";
+import AuctionSearch from "@/src/app/components/AuctionSearch";
 
 
 const AuctionsScreen = () => {
@@ -35,15 +36,25 @@ const AuctionsScreen = () => {
     }, [filter])
 
 
+    const handleSearch = async (query: string) => {
+        setLoading(true);
+        try {
+            const results = await AuctionRepository.getInstance().getAuctionList(0, filter, query);
+            setAuctions(results);
+        } catch (error) {
+            console.error("Erreur lors de la recherche:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Enchères</Text>
-                <TouchableOpacity>
-                    <Feather name="search" size={24} color="#333"/>
-                </TouchableOpacity>
+                <SearchButton />
             </View>
-
+            <AuctionSearch onSearch={handleSearch} />
             <LMSFilter filter={filter} setFilter={setFilter} options={["all","endsoon","new","highest"]}/>
             <AuctionList auctions={auctions}/>
 
@@ -147,4 +158,3 @@ const styles = StyleSheet.create({
 })
 
 export default AuctionsScreen
-
