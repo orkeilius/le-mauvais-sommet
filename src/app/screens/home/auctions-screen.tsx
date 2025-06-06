@@ -6,7 +6,6 @@ import AuctionRepository from "@/src/Repository/AuctionRepository";
 import Auction from "@/src/model/Auction";
 import AuctionList from "@/src/app/components/AuctionList";
 import LMSFilter from "@/src/app/components/Filtre";
-import SearchButton from "@/src/app/components/SearchButton";
 import AuctionSearch from "@/src/app/components/AuctionSearch";
 
 
@@ -52,7 +51,6 @@ const AuctionsScreen = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Enchères</Text>
-                <SearchButton />
             </View>
             <AuctionSearch onSearch={handleSearch} />
             <LMSFilter filter={filter} setFilter={setFilter} options={["all","endsoon","new","highest"]}/>
