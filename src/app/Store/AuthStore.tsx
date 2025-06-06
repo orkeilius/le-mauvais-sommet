@@ -5,8 +5,10 @@ import User from "@/src/model/User";
 
 interface AuthStoreProps {
     user: User | null,
+
     isLoading: boolean,
     dispatch: React.Dispatch<{ action: "login" | "logout" | "setLoading"; value: User | null | boolean }>;
+
 }
 
 export const AuthContext = createContext<AuthStoreProps>({

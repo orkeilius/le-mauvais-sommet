@@ -174,15 +174,6 @@ const AddProductScreen = () => {
         }
     };
 
-    const toggleCategoryPicker = () => {
-        setShowCategoryPicker(!showCategoryPicker);
-    };
-
-    const selectCategory = (category: string) => {
-        setSelectedCategory(category);
-        setShowCategoryPicker(false);
-    };
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -246,47 +237,6 @@ const AddProductScreen = () => {
                             value={form.description}
                             onChangeText={(text) => setForm({...form, description: text})}
                         />
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Catégorie</Text>
-                            <TouchableOpacity
-                                style={styles.inputContainer}
-                                onPress={toggleCategoryPicker}
-                            >
-                                <Text
-                                    style={selectedCategory ? styles.input : styles.placeholderInput}
-                                >
-                                    {selectedCategory || "Sélectionner une catégorie"}
-                                </Text>
-                                <Feather
-                                    name={showCategoryPicker ? "chevron-up" : "chevron-down"}
-                                    size={20}
-                                    color="#666"
-                                />
-                            </TouchableOpacity>
-
-                            {showCategoryPicker && (
-                                <View style={styles.categoryPicker}>
-                                    {categories.map((category) => (
-                                        <TouchableOpacity
-                                            key={category}
-                                            style={styles.categoryItem}
-                                            onPress={() => selectCategory(category)}
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.categoryText,
-                                                    selectedCategory === category &&
-                                                    styles.selectedCategoryText,
-                                                ]}
-                                            >
-                                                {category}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            )}
-                        </View>
 
                         <LMSTextInput
                             label="Prix de départ (€)"
