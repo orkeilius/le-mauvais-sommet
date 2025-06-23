@@ -22,13 +22,14 @@ import Auction from "@/src/model/Auction";
 const AuctionDetailScreen = () => {
   const route = useRoute()
   const navigation = useNavigation()
-  const { auctionId } = route.params as { auctionId: number }
-
+  
+  const params = route.params as { auctionId?: number; productId?: string }
+  const auctionId = params.auctionId || parseInt(params.productId || '0')
+  
   const [auction, setAuction] = useState<Auction | null>(null)
   const [loading, setLoading] = useState(true)
   const [bidAmount, setBidAmount] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
-  console.log(auction)
   const loadAuctionDetail = async () => {
     try {
       AuctionRepository.getInstance().getAuctionById(auctionId).then(setAuction).finally(() => setLoading(false))
@@ -49,7 +50,6 @@ const AuctionDetailScreen = () => {
     if (!auction) return
 
     const amount = bidAmount
-    console.log(amount,Math.max(auction.highestOffer,auction.startingPrice))
     if (isNaN(amount) || amount <= 0) {
       Alert.alert("Montant invalide", "Veuillez entrer un montant valide.")
       return
@@ -67,7 +67,7 @@ const AuctionDetailScreen = () => {
     try {
       const response = await OfferRepository.getInstance().postOffer(auction.id, amount)
       Alert.alert("Succès", "Votre enchère a été soumise avec succès.")
-      setBidAmount("") // Réinitialise le champ de saisie
+      setBidAmount(0)
     } catch (error) {
       Alert.alert("Erreur", "Une erreur s'est produite lors de la soumission de votre enchère.")
       console.error("Erreur lors de l'enchère:", error)
@@ -80,7 +80,7 @@ const AuctionDetailScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3498db" />
+        <ActivityIndicator size={40} color="#3498db" />
       </View>
     )
   }
@@ -180,6 +180,7 @@ const AuctionDetailScreen = () => {
       {!auction.isEnded() && (
         <View style={styles.bidFormContainer}>
           <LMSTextInput
+            type="label"
             style={styles.bidInput}
             placeholder={`Enchère min. ${auction.highestOffer + 1} €`}
             value={bidAmount}

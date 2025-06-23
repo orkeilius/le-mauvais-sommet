@@ -3,6 +3,7 @@
     "name": "le_mauvais_sommet",
     "slug": "le_mauvais_sommet",
     "version": "1.0.0",
+    "sdkVersion": "52.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

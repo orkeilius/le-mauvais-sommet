@@ -43,25 +43,36 @@ export default class Auction {
         this.offers = []
     }
 
-    public static mapFromJson(json: object): Auction {
-        console.log(json)
+    public static mapFromJson(json: any): Auction {        
+        let author = null;
+        if (json.author) {
+            author = User.mapFromJson(json.author);
+        } else {
+            author = new User(0, 'Unknown', new Date().toISOString(), 'user', '', new Date().toISOString());
+        }
+        let images = [];
+        if (json.images && Array.isArray(json.images)) {
+            images = json.images.map((image: any) => Image.mapFromJson(image));
+        }
+        
         const auction = new Auction(
             json.id,
-            new Date(json.created_at),
-            new Date(json.updated_at),
+            json.created_at,
+            json.updated_at,
             json.name,
             json.description,
             json.starting_price,
-            new Date(json.end_at),
-            User.mapFromJson(json.author),
-            json.highest_offer,
-            json.images.map((image: object) => Image.mapFromJson(image))
+            json.end_at,
+            author,
+            json.highest_offer || 0,
+            images
         );
+        
         if (json.offers_count !== undefined) {
             auction.offersCount = json.offers_count
         }
         if (json.offers !== undefined) {
-            auction.offers = json.offers.map((offer: object) => Offer.mapFromJson(offer));
+            auction.offers = json.offers.map((offer: any) => Offer.mapFromJson(offer));
         }
         return auction;
     }

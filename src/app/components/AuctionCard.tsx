@@ -5,7 +5,6 @@ import {useNavigation} from "@react-navigation/native";
 
 export default function AuctionCard( {item}: Readonly<{ item: Auction }>) {
     const navigation = useNavigation()
-    console.log(item)
     const image = item?.images.length !== 0 ? item.images[0].url : "https://www.example.com/placeholder.png"
 
     return (

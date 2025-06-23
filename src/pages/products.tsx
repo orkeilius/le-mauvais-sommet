@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { PencilIcon, TrashIcon, SearchIcon, EyeIcon } from "@heroicons/react/outline"
+import AuctionRepository from "../Repository/AuctionRepository"
+import Auction from "../model/Auction"
 
 // Types
 interface Product {
@@ -26,57 +28,43 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [searchQuery, setSearchQuery] = useState("") // Server-side search
   const [currentPage, setCurrentPage] = useState(1)
   const [productsPerPage] = useState(10)
   const [filter, setFilter] = useState("all") // 'all', 'active', 'sold', 'expired', 'draft'
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
+  const [bulkLoading, setBulkLoading] = useState(false)
+  const [categories] = useState(["Tous", "Enchères", "Électronique", "Mode", "Art", "Sport", "Livres", "Maison"])
+  const [selectedCategory, setSelectedCategory] = useState("Tous")
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null)
 
   useEffect(() => {
-    // Charger les produits
-    const loadProducts = async () => {
-      try {
-        // Intégration avec le backend existant
-        // Exemple: const response = await api.getProducts();
+    loadProductsFromAPI(0, filter, searchQuery)
+  }, [filter, searchQuery]) // Recharger quand le filtre ou la recherche change
 
-        // Pour la démo, on simule des données
-        setTimeout(() => {
-          const mockProducts: Product[] = Array.from({ length: 30 }, (_, i) => ({
-            id: `p${i + 1}`,
-            title: `Produit ${i + 1}`,
-            description: `Description du produit ${i + 1}`,
-            price: Math.floor(Math.random() * 100) + 10,
-            startingPrice: Math.floor(Math.random() * 50) + 5,
-            currentBid: Math.floor(Math.random() * 150) + 10,
-            bidsCount: Math.floor(Math.random() * 20),
-            category: ["PDF", "Images", "Templates", "Vidéos", "Audio"][Math.floor(Math.random() * 5)],
-            status: ["active", "sold", "expired", "draft"][Math.floor(Math.random() * 4)] as any,
-            seller: {
-              id: `s${Math.floor(Math.random() * 10) + 1}`,
-              name: `Vendeur ${Math.floor(Math.random() * 10) + 1}`,
-            },
-            createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
-            endDate: new Date(Date.now() + Math.floor(Math.random() * 10000000000)).toISOString(),
-          }))
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setSearchQuery(searchTerm)
+      setCurrentPage(1)
+    }, 500) // 500ms debounce
 
-          setProducts(mockProducts)
-          setLoading(false)
-        }, 1000)
-      } catch (error) {
-        console.error("Erreur lors du chargement des produits:", error)
-        setLoading(false)
-      }
-    }
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm])
 
-    loadProducts()
-  }, [])
-
-  // Filtrer les produits en fonction du terme de recherche et du filtre
+  // Advanced search with category and better filtering
   const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = searchQuery === "" || 
+      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.seller.name.toLowerCase().includes(searchQuery.toLowerCase())
 
-    if (filter === "all") return matchesSearch
-    return matchesSearch && product.status === filter
+    const matchesCategory = selectedCategory === "Tous" || product.category === selectedCategory
+
+    const matchesStatus = filter === "all" || product.status === filter
+
+    return matchesSearch && matchesCategory && matchesStatus
   })
 
   // Pagination
@@ -86,7 +74,84 @@ const Products = () => {
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
 
   // Changer de page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+    // Optionnel: recharger les données depuis l'API pour la nouvelle page
+    // loadProductsFromAPI(pageNumber - 1, filter)
+  }
+
+  // Fonction utilitaire pour recharger les données
+  const loadProductsFromAPI = async (page: number = 0, currentFilter: string = filter, search: string = "") => {
+    try {
+      setLoading(true)
+      const auctionRepository = AuctionRepository.getInstance()
+      
+      // Mapper le filtre vers le format de l'API
+      let apiFilter = ""
+      if (currentFilter === "active") {
+        apiFilter = "active"
+      } else if (currentFilter === "sold") {
+        apiFilter = "ended"
+      } else if (currentFilter === "expired") {
+        apiFilter = "expired"
+      }
+    
+        let auctions = await auctionRepository.getAuctionList(page, apiFilter);
+  
+      
+      const transformedProducts: Product[] = auctions.map((auction: Auction) => ({
+        id: auction.id.toString(),
+        title: auction.name,
+        description: auction.description,
+        price: auction.startingPrice,
+        startingPrice: auction.startingPrice,
+        currentBid: auction.highestOffer,
+        bidsCount: auction.offersCount || 0,
+        category: "Enchères", 
+        status: auction.isEnded() ? "sold" : (auction.isEnding() ? "expired" : "active"),
+        seller: {
+          id: auction.author.id.toString(),
+          name: auction.author.name,
+        },
+        createdAt: auction.createdAt.toISOString(),
+        endDate: auction.endAt.toISOString(),
+      }))
+
+      setProducts(transformedProducts)
+      setLoading(false)
+    } catch (error) {
+      console.error("Erreur lors du chargement des produits:", error)
+      
+      const mockProducts: Product[] = Array.from({ length: 30 }, (_, i) => ({
+        id: `p${i + 1}`,
+        title: `Produit ${i + 1}`,
+        description: `Description du produit ${i + 1}`,
+        price: Math.floor(Math.random() * 100) + 10,
+        startingPrice: Math.floor(Math.random() * 50) + 5,
+        currentBid: Math.floor(Math.random() * 150) + 10,
+        bidsCount: Math.floor(Math.random() * 20),
+        category: ["PDF", "Images", "Templates", "Vidéos", "Audio"][Math.floor(Math.random() * 5)],
+        status: ["active", "sold", "expired", "draft"][Math.floor(Math.random() * 4)] as any,
+        seller: {
+          id: `s${Math.floor(Math.random() * 10) + 1}`,
+          name: `Vendeur ${Math.floor(Math.random() * 10) + 1}`,
+        },
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString(),
+        endDate: new Date(Date.now() + Math.floor(Math.random() * 10000000000)).toISOString(),
+      }))
+
+      setProducts(mockProducts)
+      setLoading(false)
+    }
+  }
+
+
+
+
+
+
+
+
 
   // Formater la date
   const formatDate = (dateString: string) => {
@@ -126,31 +191,63 @@ const Products = () => {
     }
   }
 
+  // Bulk operations
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProducts(currentProducts.map(p => p.id))
+    } else {
+      setSelectedProducts([])
+    }
+  }
+
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedProducts([...selectedProducts, productId])
+    } else {
+      setSelectedProducts(selectedProducts.filter(id => id !== productId))
+    }
+  }
+
+
+
+
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Gestion des produits</h2>
 
-      {/* Barre de recherche et actions */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div className="relative mb-4 md:mb-0">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon className="h-5 w-5 text-gray-400" />
+        <div className="flex flex-col sm:flex-row gap-4 mb-4 md:mb-0">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <SearchIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full md:w-80"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1) 
+              }}
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Rechercher un produit..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full md:w-80"
-            value={searchTerm}
+          
+          <select
+            value={selectedCategory}
             onChange={(e) => {
-              setSearchTerm(e.target.value)
-              setCurrentPage(1) // Réinitialiser la pagination lors d'une recherche
+              setSelectedCategory(e.target.value)
+              setCurrentPage(1)
             }}
-          />
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          >
+            {categories.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
         </div>
-
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">
-          Ajouter un produit
-        </button>
       </div>
 
       {/* Filtres */}
@@ -226,6 +323,17 @@ const Products = () => {
                   <tr>
                     <th
                       scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.length === currentProducts.length && currentProducts.length > 0}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      />
+                    </th>
+                    <th
+                      scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       Produit
@@ -272,6 +380,14 @@ const Products = () => {
                   {currentProducts.map((product) => (
                     <tr key={product.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.includes(product.id)}
+                          onChange={(e) => handleSelectProduct(product.id, e.target.checked)}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded flex items-center justify-center">
                             <span className="text-gray-500 font-medium">{product.title.charAt(0)}</span>
@@ -306,17 +422,7 @@ const Products = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {product.status === "draft" ? "-" : formatDate(product.endDate)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-indigo-600 hover:text-indigo-900 mr-3">
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                        <button className="text-indigo-600 hover:text-indigo-900 mr-3">
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </td>
+                   
                     </tr>
                   ))}
                 </tbody>
