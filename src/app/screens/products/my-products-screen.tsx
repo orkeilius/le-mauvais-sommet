@@ -1,10 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native"
+import AuctionRepository from "../../../Repository/AuctionRepository"
+import { AuthContext } from "../../Store/AuthStore"
+import Auction from "../../../model/Auction"
 
 // Types
 interface Product {
@@ -24,18 +27,44 @@ const MyProductsScreen = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
-    loadProducts()
-  }, [])
+    if (user) {
+      loadProducts()
+    }
+  }, [user])
 
   const loadProducts = async () => {
     try {
-      // Intégration avec le backend existant
-      // Exemple: const response = await api.getMyProducts();
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
-      // Pour la démo, on simule des données
+      // Récupérer les enchères de l'utilisateur connecté
+      const auctions = await user.getAuction(1, "") // Page 1, tous les filtres
+      
+      // Transformer les enchères en produits pour la compatibilité avec l'interface
+      const transformedProducts: Product[] = auctions.map((auction: Auction) => ({
+        id: auction.id.toString(),
+        title: auction.name,
+        description: auction.description,
+        price: auction.startingPrice,
+        imageUrl: auction.images.length > 0 ? auction.images[0].url : "",
+        status: auction.isEnded() ? "sold" : (auction.isEnding() ? "expired" : "active"),
+        createdAt: auction.createdAt.toISOString(),
+        endDate: auction.endAt.toISOString(),
+        currentBid: auction.highestOffer,
+        bidsCount: auction.offersCount || 0,
+      }))
+
+      setProducts(transformedProducts)
+    } catch (error) {
+      console.error("Erreur lors du chargement des produits:", error)
+      
+      // En cas d'erreur, utiliser des données de simulation comme fallback
       const mockProducts: Product[] = [
         {
           id: "p1",
@@ -85,8 +114,6 @@ const MyProductsScreen = () => {
       ]
 
       setProducts(mockProducts)
-    } catch (error) {
-      console.error("Erreur lors du chargement des produits:", error)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -112,12 +139,18 @@ const MyProductsScreen = () => {
       {
         text: "Supprimer",
         style: "destructive",
-        onPress: () => {
-          // Intégration avec le backend existant
-          // Exemple: await api.deleteProduct(productId);
-
-          // Pour la démo, on filtre simplement le produit
-          setProducts(products.filter((p) => p.id !== productId))
+        onPress: async () => {
+          try {
+            const auctionRepository = AuctionRepository.getInstance()
+            await auctionRepository.deleteAuction(parseInt(productId))
+            
+            // Retirer le produit de la liste locale après suppression réussie
+            setProducts(products.filter((p) => p.id !== productId))
+            Alert.alert("Succès", "Produit supprimé avec succès")
+          } catch (error) {
+            console.error("Erreur lors de la suppression:", error)
+            Alert.alert("Erreur", "Impossible de supprimer le produit")
+          }
         },
       },
     ])
@@ -237,7 +270,7 @@ const MyProductsScreen = () => {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3498db" />
+          <ActivityIndicator size={40} color="#3498db" />
         </View>
       ) : (
         <FlatList

@@ -37,9 +37,9 @@ export default class UserRepository extends AbscractRepository {
 
     }
 
-    async getOffersFromUser(user: User, page= 1): Promise<Offert[]> {
+    async getOffersFromUser(user: User, page= 1): Promise<Offer[]> {
         const response = await super.getConnection().get(`api/users/${user.id}/offer?page=${page}`);
-        return response.data.map((offer: Offert) => {
+        return response.data.map((offer: any) => {
             offer.author = user
             return Offer.mapFromJson(offer);
         });

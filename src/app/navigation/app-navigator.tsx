@@ -60,7 +60,7 @@ const MainTabsNavigator = () => {
             screenOptions={({route}) => ({
                 headerShown: false,
                 tabBarIcon: ({color, size}) => {
-                    let iconName
+                    let iconName: keyof typeof Feather.glyphMap
 
                     if (route.name === "Auctions") {
                         iconName = "home"
@@ -112,7 +112,7 @@ const AppNavigator = () => {
     if (authContext.isLoading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#3498db" />
+                <ActivityIndicator size={40} color="#3498db" />
             </View>
         )
     }
