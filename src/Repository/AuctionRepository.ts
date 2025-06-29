@@ -15,17 +15,28 @@ export default class AuctionRepository extends AbscractRepository {
         return AuctionRepository.instance;
     }
 
-    public async getAuctionList(page: number, filter:string=""): Promise<Auction[]> {
-        let url = `api/auctions?page=${page}`;
+    public async getAuctionList(page: number, filter: string = ""): Promise<{ data: Auction[]; total: number; current_page: number; last_page: number }> {
+        let url = `auctions?page=${page}`;
         if (filter !== "") {
             url += `&filter=${filter}`;
         }
-        const response = await this.getConnection().get(url);
-        return response.data.data.map((e: any) =>  Auction.mapFromJson(e))
+        const response = await this.get(url);
+        return {
+            data: response.data.data.map((e: any) => Auction.mapFromJson(e)),
+            total: response.data.total || 0,
+            current_page: response.data.current_page || page,
+            last_page: response.data.last_page || 1
+        };
+    }
+
+    // Méthode de compatibilité pour l'ancienne interface
+    public async getAuctionListSimple(page: number, filter: string = ""): Promise<Auction[]> {
+        const result = await this.getAuctionList(page, filter);
+        return result.data;
     }
 
     public async getAuctionById(id: number): Promise<Auction> {
-        const response = await this.getConnection().get(`api/auctions/${id}`);
+        const response = await this.get(`auctions/${id}`);
         return Auction.mapFromJson(response.data);
     }
 

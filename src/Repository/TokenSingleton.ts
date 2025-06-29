@@ -6,7 +6,7 @@ class TokenSingleton {
     private token: string | null = null;
     private refreshToken: string | null = null;
 
-    private interval: Timeout | undefined;
+    private interval: NodeJS.Timeout | undefined;
 
     private constructor() {}
 
@@ -30,11 +30,20 @@ class TokenSingleton {
     }
 
     // Enregistrer un token
-    public setToken(token: string,refreshToken:string,refreshTime:number): void {
+    public setToken(token: string, refreshToken: string, refreshTime: number): void {
         this.token = token;
         this.refreshToken = refreshToken;
-        clearTimeout(this.interval)
-        this.interval = setInterval(() => LoginRepository.getInstance().refreshToken(this.token), refreshTime*0.5);
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        // Refresh automatique à mi-temps d'expiration
+        if (this.token) {
+            this.interval = setInterval(() => {
+                if (this.token) {
+                    LoginRepository.getInstance().refreshToken(this.token);
+                }
+            }, refreshTime * 500); // refreshTime en secondes, converti en millisecondes et divisé par 2
+        }
         AsyncStorage.setItem('token', token);
         AsyncStorage.setItem('refreshToken', refreshToken);
     }
@@ -42,6 +51,27 @@ class TokenSingleton {
     // Obtenir le token
     public getToken(): string | null {
         return this.token;
+    }
+
+    // Obtenir le refresh token
+    public getRefreshToken(): string | null {
+        return this.refreshToken;
+    }
+
+    // Vider les tokens
+    public clearToken(): void {
+        this.token = null;
+        this.refreshToken = null;
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        AsyncStorage.removeItem('token');
+        AsyncStorage.removeItem('refreshToken');
+    }
+
+    // Vérifier si le token existe
+    public hasToken(): boolean {
+        return this.token !== null;
     }
 }
 

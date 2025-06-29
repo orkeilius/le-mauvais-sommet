@@ -16,20 +16,50 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import UserRepository from "@/src/Repository/UserRepository";
+import { useApiForm } from "@/src/hooks/useApi";
 
 const RegisterScreen = () => {
-
-
 	const [name, setName] = useState("");
-
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigation = useNavigation();
 
+	const {
+		loading,
+		error,
+		handleSubmit,
+		formData,
+		updateFormData,
+	} = useApiForm(
+		(data) => UserRepository.getInstance().save(data.name, data.email, data.password),
+		{
+			onSuccess: (user) => {
+				Alert.alert(
+					"Inscription réussie",
+					"Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
+					[
+						{
+							text: "OK",
+							onPress: () => navigation.navigate("Login")
+						}
+					]
+				);
+			},
+			onError: (error) => {
+				console.error("Erreur d'inscription:", error);
+				const errorMessage = error?.response?.data?.message || 
+									error?.response?.data?.errors?.email?.[0] ||
+									"Impossible de créer votre compte. Veuillez réessayer.";
+				Alert.alert("Erreur d'inscription", errorMessage);
+			}
+		}
+	);
+
 	const handleRegister = async () => {
-		if (!name || !email || !password || !confirmPassword ) {
+		// Validation des champs
+		if (!name.trim() || !email.trim() || !password || !confirmPassword) {
 			Alert.alert("Erreur", "Veuillez remplir tous les champs");
 			return;
 		}
@@ -39,11 +69,21 @@ const RegisterScreen = () => {
 			return;
 		}
 
-		try {
-			UserRepository.getInstance().save(name, email, password).then(()=>navigation.navigate("Login"))
-		} catch (error) {
-			Alert.alert("Erreur d'inscription", "Impossible de créer votre compte");
+		if (password.length < 6) {
+			Alert.alert("Erreur", "Le mot de passe doit contenir au moins 6 caractères");
+			return;
 		}
+
+		// Validation email basique
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			Alert.alert("Erreur", "Veuillez entrer une adresse email valide");
+			return;
+		}
+
+		// Mise à jour des données du formulaire et soumission
+		updateFormData({ name: name.trim(), email: email.trim(), password });
+		await handleSubmit();
 	};
 
 	return (
@@ -99,7 +139,6 @@ const RegisterScreen = () => {
 							type="password"
 							placeholder="Votre mot de passe"
 							value={password}
-              eye
 							onChangeText={setPassword}
 							label="Mot de passe"
 							leftIcon={
@@ -117,9 +156,7 @@ const RegisterScreen = () => {
 							placeholder="Confirmer votre mot de passe"
 							value={confirmPassword}
 							onChangeText={setConfirmPassword}
-              eye
 							label="Confirmer votre Mot de passe"
-							secureTextEntry={!showPassword}
 							leftIcon={
 								<Feather
 									name="lock"
@@ -131,15 +168,22 @@ const RegisterScreen = () => {
 						/>
 
 						<TouchableOpacity
-							style={styles.registerButton}
+							style={[styles.registerButton, loading && styles.registerButtonDisabled]}
 							onPress={handleRegister}
+							disabled={loading}
 						>
-							<Text style={styles.registerButtonText}>S'inscrire</Text>
+							<Text style={styles.registerButtonText}>
+								{loading ? "Inscription en cours..." : "S'inscrire"}
+							</Text>
 						</TouchableOpacity>
+
+						{error && (
+							<Text style={styles.errorText}>{error}</Text>
+						)}
 
 						<View style={styles.loginContainer}>
 							<Text style={styles.loginText}>Vous avez déjà un compte? </Text>
-							<TouchableOpacity onPress={() => navigation.navigate("Login")}>
+							<TouchableOpacity onPress={() => navigation.goBack()}>
 								<Text style={styles.loginLink}>Se connecter</Text>
 							</TouchableOpacity>
 						</View>
@@ -192,10 +236,21 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		marginBottom: 20,
 	},
+	registerButtonDisabled: {
+		backgroundColor: "#95a5a6",
+		opacity: 0.7,
+	},
 	registerButtonText: {
 		color: "#fff",
 		fontSize: 18,
 		fontWeight: "600",
+	},
+	errorText: {
+		color: "#e74c3c",
+		fontSize: 14,
+		textAlign: "center",
+		marginBottom: 15,
+		paddingHorizontal: 10,
 	},
 	loginContainer: {
 		flexDirection: "row",

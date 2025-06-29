@@ -20,37 +20,35 @@ export default class UserRepository extends AbscractRepository {
 
     // Obtenir un utilisateur par ID
     async getById(id: number): Promise<User> {
-        const response = await this.getConnection().get(`/users/${id}`);
-        const {id: userId, name, updated_at, role, avatar_url} = response.data;
-        return new User(userId, name, updated_at, role, avatar_url);
+        const response = await this.get(`users/${id}`);
+        return User.mapFromJson(response.data);
     }
 
     // Sauvegarder un utilisateur (créer ou mettre à jour)
-    async save(name:string,email:string,password:string): Promise<User> {
-        const response = await this.getConnection().post(`api/users`, {
+    async save(name: string, email: string, password: string): Promise<User> {
+        const response = await this.post(`users`, {
             name,
             email,
             password,
             password_confirmation: password,
         });
-        return response.data;
-
+        return User.mapFromJson(response.data);
     }
 
-    async getOffersFromUser(user: User, page= 1): Promise<Offer[]> {
-        const response = await super.getConnection().get(`api/users/${user.id}/offer?page=${page}`);
+    async getOffersFromUser(user: User, page = 1): Promise<Offer[]> {
+        const response = await this.get(`users/${user.id}/offer?page=${page}`);
         return response.data.map((offer: any) => {
             offer.author = user
             return Offer.mapFromJson(offer);
         });
     }
 
-    async getAuctionFromUser(user: User, page=1,filter=""): Promise<Auction[]> {
-        let url = `api/users/${user.id}/auction?page=${page}`;
+    async getAuctionFromUser(user: User, page = 1, filter = ""): Promise<Auction[]> {
+        let url = `users/${user.id}/auction?page=${page}`;
         if (filter !== "") {
             url += `&filter=${filter}`;
         }
-        const response = await super.getConnection().get(url);
+        const response = await this.get(url);
         return response.data.data.map((auction: Auction) => {
             auction.author = user
             return Auction.mapFromJson(auction);
@@ -58,7 +56,7 @@ export default class UserRepository extends AbscractRepository {
     }
 
     // Supprimer un utilisateur par ID
-    async delete(id: number): Promise<void> {
-        await this.getConnection().delete(`api/users/${id}`);
+    async deleteUser(id: number): Promise<void> {
+        await this.delete(`users/${id}`);
     }
 }

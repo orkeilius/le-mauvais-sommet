@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import LoginRepository from "@/src/Repository/LoginRepository";
 import {AuthContext} from "@/src/app/Store/AuthStore";
+import { useApi } from "@/src/hooks/useApi";
 
 const LoginScreen = () => {
 	const [email, setEmail] = useState("");
@@ -27,16 +28,55 @@ const LoginScreen = () => {
 	const navigation = useNavigation();
 	const authContext = useContext(AuthContext);
 
+	const {
+		loading,
+		error,
+		execute: loginUser
+	} = useApi(
+		(email: string, password: string) => 
+			LoginRepository.getInstance().login(email, password),
+		{
+			onSuccess: (user) => {
+				authContext.dispatch({action: "login", value: user});
+				Alert.alert(
+					"Connexion réussie",
+					`Bienvenue ${user.name} !`,
+					[{ 
+						text: "OK", 
+						onPress: () => {
+							// La navigation se fera automatiquement grâce au AuthContext
+							// L'AppNavigator détecte que authContext.user n'est plus null
+						}
+					}]
+				);
+			},
+			onError: (error) => {
+				console.error("Erreur de connexion:", error);
+				const errorMessage = error?.response?.data?.message || 
+									error?.message ||
+									"Identifiants incorrects. Veuillez réessayer.";
+				Alert.alert("Erreur de connexion", errorMessage);
+			}
+		}
+	);
+
 	const handleLogin = async () => {
-		if (!email || !password) {
+		if (!email.trim() || !password) {
 			Alert.alert("Erreur", "Veuillez remplir tous les champs");
 			return;
 		}
 
+		// Validation email basique
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			Alert.alert("Erreur", "Veuillez entrer une adresse email valide");
+			return;
+		}
+
 		try {
-			LoginRepository.getInstance().login(email, password).then(response => authContext.dispatch({action:"login", value:response}));
-		} catch (error) {
-			Alert.alert("Erreur de connexion", "Identifiants incorrects");
+			await loginUser(email.trim(), password);
+		} catch (err) {
+			// L'erreur est déjà gérée par le hook useApi
 		}
 	};
 
@@ -78,9 +118,7 @@ const LoginScreen = () => {
 							placeholder="Votre mot de passe"
 							value={password}
 							onChangeText={setPassword}
-
 							label="Mot de passe"
-							secureTextEntry={!showPassword}
 							leftIcon={
 								<Feather
 									name="lock"
@@ -97,15 +135,25 @@ const LoginScreen = () => {
 							</Text>
 						</TouchableOpacity>
 
-						<TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-							<Text style={styles.loginButtonText}>Se connecter</Text>
+						<TouchableOpacity 
+							style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
+							onPress={handleLogin}
+							disabled={loading}
+						>
+							<Text style={styles.loginButtonText}>
+								{loading ? "Connexion en cours..." : "Se connecter"}
+							</Text>
 						</TouchableOpacity>
+
+						{error && (
+							<Text style={styles.errorText}>{error}</Text>
+						)}
 
 						<View style={styles.registerContainer}>
 							<Text style={styles.registerText}>
 								Vous n'avez pas de compte?{" "}
 							</Text>
-							<TouchableOpacity onPress={() => navigation.navigate("Register")}>
+							<TouchableOpacity onPress={() => navigation.goBack()}>
 								<Text style={styles.registerLink}>S'inscrire</Text>
 							</TouchableOpacity>
 						</View>
@@ -186,10 +234,21 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		marginBottom: 20,
 	},
+	loginButtonDisabled: {
+		backgroundColor: "#95a5a6",
+		opacity: 0.7,
+	},
 	loginButtonText: {
 		color: "#fff",
 		fontSize: 18,
 		fontWeight: "600",
+	},
+	errorText: {
+		color: "#e74c3c",
+		fontSize: 14,
+		textAlign: "center",
+		marginBottom: 15,
+		paddingHorizontal: 10,
 	},
 	registerContainer: {
 		flexDirection: "row",
