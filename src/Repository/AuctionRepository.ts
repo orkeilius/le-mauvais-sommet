@@ -15,8 +15,12 @@ export default class AuctionRepository extends AbscractRepository {
         return AuctionRepository.instance;
     }
 
-    public async getAuctionList(page: number, filter:string=""): Promise<Auction[]> {
+    public async getAuctionList(page: number, filter:string="",query:string|null=null): Promise<Auction[]> {
         let url = `api/auctions?page=${page}`;
+        console.log(`Fetching auctions with URL: ${query}`);
+        if (query !== null && query !== "") {
+            url += `&search=${encodeURIComponent(query)}`;
+        }
         if (filter !== "") {
             url += `&filter=${filter}`;
         }
